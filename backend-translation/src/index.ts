@@ -7,7 +7,10 @@ dotenv.config();
 console.log(`Environment ${process.env.NODE_ENV}`);
 const production = process.env.NODE_ENV === "production" ? true : false;
 
-const knownUsers = production ? [] : ["divyenduz", "nilanm"];
+const betaTesters = ["divyenduz", "nilanm", "rusrushal13"]
+const knownUsers = production
+  ? [...betaTesters]
+  : [...betaTesters];
 
 const isKnownUser = userName => {
   const index = knownUsers.indexOf(userName);

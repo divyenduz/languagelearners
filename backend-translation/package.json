@@ -25,8 +25,8 @@
     "watch": "tsc -w",
     "set-webhook": "ts-node ./scripts/set-webhook.ts",
     "set-webhook-production": "ts-node ./scripts/set-webhook.ts --production",
-    "get-webhook": "ts-node ./scripts/get-webhook.ts",
-    "get-webhook-production": "ts-node ./scripts/get-webhook.ts --production",
+    "get-bot": "ts-node ./scripts/get-bot.ts",
+    "get-bot-production": "ts-node ./scripts/get-bot.ts --production",
     "deploy": "sls deploy",
     "deploy-production": "NODE_ENV=production sls deploy --stage production"
   }
