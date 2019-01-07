@@ -15,18 +15,16 @@ dotenv.config({
 });
 
 console.log(`Environment ${process.env.NODE_ENV}`);
+let url = process.env.BACKEND_URL;
 
-if (args._.length !== 1) {
-  console.error("Invalid number of args. Please provide webhook URL");
-  process.exit(1);
+if (args._.length == 1) {
+  url = args._[0];
 }
 
 if (!process.env.BOT_TOKEN) {
   console.error("Invalid .env, please set BOT_TOKEN");
   process.exit(1);
 }
-
-const url = args._[0];
 
 const body = new FormData();
 body.append("url", url);

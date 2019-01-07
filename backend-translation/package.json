@@ -26,6 +26,6 @@
     "set-webhook": "ts-node ./scripts/set-webhook.ts",
     "set-webhook-production": "ts-node ./scripts/set-webhook.ts --production",
     "deploy": "sls deploy",
-    "deploy-production": "NODE_ENV=production sls deploy"
+    "deploy-production": "NODE_ENV=production sls deploy --stage production"
   }
 }
