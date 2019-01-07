@@ -5,6 +5,18 @@ import * as AWS from "aws-sdk";
 dotenv.config();
 
 console.log(`Environment ${process.env.NODE_ENV}`);
+const production = process.env.NODE_ENV === "production" ? true : false;
+
+const knownUsers = production ? [] : ["divyenduz", "nilanm"];
+
+const isKnownUser = userName => {
+  const index = knownUsers.indexOf(userName);
+  return index > -1;
+};
+const userNotKnownErrorMessage = userName => {
+  const joinLink = "https://languagelearners.club";
+  return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
+};
 
 const translate = new AWS.Translate({
   region: "us-east-1",
@@ -28,6 +40,26 @@ bot.start(ctx => ctx.reply("Welcome to LingoParrot bot"));
 bot.help(ctx => ctx.reply("This bot translates stuff"));
 
 bot.on("inline_query", ctx => {
+  console.log(`Inline query from ${ctx.from.username}`);
+
+  if (!isKnownUser(ctx.from.username)) {
+    ctx.answerInlineQuery([
+      {
+        type: "article",
+        id: "1",
+        title: "Join LanguageLearners",
+        description: "Unidentified user",
+        input_message_content: {
+          message_text: userNotKnownErrorMessage(ctx.from.username)
+        },
+        url: "https://lingoparrot.languagelearners.club",
+        thumb_url:
+          "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
+      }
+    ]);
+    return;
+  }
+
   translate.translateText(
     {
       SourceLanguageCode: "auto",
@@ -43,9 +75,13 @@ bot.on("inline_query", ctx => {
           type: "article",
           id: "1",
           title: data && data.TranslatedText,
+          description: "~~",
           input_message_content: {
-            message_text: data && data.TranslatedText
-          }
+            message_text: `${data &&
+              data.TranslatedText} (${ctx.inlineQuery.query.trim()})`
+          },
+          thumb_url:
+            "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
         }
       ];
       ctx.answerInlineQuery(result);
@@ -54,6 +90,13 @@ bot.on("inline_query", ctx => {
 });
 
 bot.on("text", ctx => {
+  console.log(`Text from ${ctx.from.username}`);
+
+  if (!isKnownUser(ctx.from.username)) {
+    ctx.reply(userNotKnownErrorMessage(ctx.from.username));
+    return;
+  }
+
   translate.translateText(
     {
       SourceLanguageCode: "auto",
@@ -71,7 +114,7 @@ bot.on("text", ctx => {
 
 // bot.startPolling();
 
-module.exports.handler = (event, context, callback) => {
+module.exports.handler = (event, ctx, callback) => {
   const tmp = JSON.parse(event.body);
   bot.handleUpdate(tmp);
   return callback(null, {
