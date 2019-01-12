@@ -7,10 +7,8 @@ dotenv.config();
 console.log(`Environment ${process.env.NODE_ENV}`);
 const production = process.env.NODE_ENV === "production" ? true : false;
 
-const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01"]
-const knownUsers = production
-  ? [...betaTesters]
-  : [...betaTesters];
+const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01"];
+const knownUsers = production ? [...betaTesters] : [...betaTesters];
 
 const isKnownUser = userName => {
   const index = knownUsers.indexOf(userName);
@@ -20,8 +18,29 @@ const userNotKnownErrorMessage = userName => {
   const joinLink = "https://languagelearners.club";
   return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
 };
+const translate = async (
+  sourceText,
+  sourceLanguageCode = "auto",
+  targetLanguageCode = "de"
+) => {
+  try {
+    const data = await translateAPI
+      .translateText({
+        SourceLanguageCode: sourceLanguageCode,
+        TargetLanguageCode: targetLanguageCode,
+        Text: sourceText
+      })
+      .promise();
+    if (!data || !data.TranslatedText) {
+      throw new Error("Failed to translate");
+    }
+    return data && data.TranslatedText;
+  } catch (e) {
+    throw new Error(`Failed to translate: ${e.toString()}`);
+  }
+};
 
-const translate = new AWS.Translate({
+const translateAPI = new AWS.Translate({
   region: "us-east-1",
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_KEY_ID,
@@ -42,7 +61,7 @@ bot.start(ctx => ctx.reply("Welcome to LingoParrot bot"));
 
 bot.help(ctx => ctx.reply("This bot translates stuff"));
 
-bot.on("inline_query", ctx => {
+bot.on("inline_query", async ctx => {
   console.log(`Inline query from ${ctx.from.username}`);
 
   if (!isKnownUser(ctx.from.username)) {
@@ -63,36 +82,28 @@ bot.on("inline_query", ctx => {
     return;
   }
 
-  translate.translateText(
-    {
-      SourceLanguageCode: "auto",
-      TargetLanguageCode: "de",
-      Text: ctx.inlineQuery.query.trim()
-    },
-    (err, data) => {
-      if (err || !data || !data.TranslatedText) {
-        ctx.reply("Failed to translate");
+  try {
+    const data = await translate(ctx.inlineQuery.query.trim(), "auto", "de");
+    const result = [
+      {
+        type: "article",
+        id: "1",
+        title: data,
+        description: "Text",
+        input_message_content: {
+          message_text: `${data} (${ctx.inlineQuery.query.trim()})`
+        },
+        thumb_url:
+          "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
       }
-      const result = [
-        {
-          type: "article",
-          id: "1",
-          title: data && data.TranslatedText,
-          description: "~~",
-          input_message_content: {
-            message_text: `${data &&
-              data.TranslatedText} (${ctx.inlineQuery.query.trim()})`
-          },
-          thumb_url:
-            "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
-        }
-      ];
-      ctx.answerInlineQuery(result);
-    }
-  );
+    ];
+    ctx.answerInlineQuery(result);
+  } catch (e) {
+    ctx.reply(e.toString());
+  }
 });
 
-bot.on("text", ctx => {
+bot.on("text", async ctx => {
   console.log(`Text from ${ctx.from.username}`);
 
   if (!isKnownUser(ctx.from.username)) {
@@ -100,19 +111,12 @@ bot.on("text", ctx => {
     return;
   }
 
-  translate.translateText(
-    {
-      SourceLanguageCode: "auto",
-      TargetLanguageCode: "de",
-      Text: ctx.message.text.trim()
-    },
-    (err, data) => {
-      if (err || !data || !data.TranslatedText) {
-        ctx.reply("Failed to translate");
-      }
-      ctx.reply(data && data.TranslatedText);
-    }
-  );
+  try {
+    const data = await translate(ctx.message.text.trim(), "auto", "de");
+    ctx.reply(data);
+  } catch (e) {
+    ctx.reply(e.toString());
+  }
 });
 
 // bot.startPolling();
