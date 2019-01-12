@@ -28,3 +28,5 @@ Current known URL: https://t1bfb781ya.execute-api.us-east-1.amazonaws.com/dev/
 * https://aws.amazon.com/translate/pricing/
 * https://docs.aws.amazon.com/translate/latest/dg/API_TranslateText.html
 * https://docs.aws.amazon.com/translate/latest/dg/pairs.html
+
+* https://ibb.co/rx3tsGD (Pricing for a conversational app)
