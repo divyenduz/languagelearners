@@ -258,6 +258,10 @@ buffer-from@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
 
+buffer-type@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/buffer-type/-/buffer-type-1.0.0.tgz#0ed6f61f9ca8b4f5d55c24a9d835228176d7602b"
+
 buffer@4.9.1:
   version "4.9.1"
   resolved "http://registry.npmjs.org/buffer/-/buffer-4.9.1.tgz#6d1bb601b07a4efced97094132093027c95bc298"

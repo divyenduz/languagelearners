@@ -1,9 +1,11 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
-import * as fs from "fs";
+// import * as fs from "fs";
 
 const uuidv4 = require("uuid/v4");
+// const mime = require("mime-types");
+const mime = require("buffer-type");
 
 dotenv.config();
 
@@ -102,6 +104,14 @@ const speechAPI = new AWS.Polly({
   signatureVersion: "v4"
 });
 
+const S3API = new AWS.S3({
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_KEY_ID
+  // params: {
+  //   Bucket: `divyendusingh/LingoParrot/${process.env.NODE_ENV}`
+  // }
+});
+
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.use((ctx, next) => {
@@ -122,14 +132,6 @@ bot.on("inline_query", async ctx => {
   console.log(`Inline query ${query} from ${ctx.from.username}`);
 
   if (!isKnownUser(ctx.from.username)) {
-    console.log(
-      makeInlineQueryResultArticle({
-        title: "Join LanguageLearners",
-        description: "Unidentified user",
-        message: userNotKnownErrorMessage(ctx.from.username),
-        url: "https://lingoparrot.languagelearners.club"
-      })
-    );
     ctx.answerInlineQuery([
       makeInlineQueryResultArticle({
         title: "Join LanguageLearners",
@@ -143,6 +145,17 @@ bot.on("inline_query", async ctx => {
 
   try {
     const data = await translate(query, "auto", "de");
+
+    const voice = await speak(data, "de-DE");
+    const voiceFile = await S3API.upload({
+      Key: `${uuidv4()}.mp3`,
+      ACL: "public-read",
+      Body: voice,
+      ContentLength: voice.byteLength,
+      ContentType: mime(voice),
+      Bucket: `divyendusingh/LingoParrot/${process.env.NODE_ENV}`
+    }).promise();
+
     const result = [
       makeInlineQueryResultArticle({
         title: data,
@@ -152,15 +165,20 @@ bot.on("inline_query", async ctx => {
       {
         type: "audio",
         id: uuidv4(),
-        audio_url:
-          "https://s3-ap-southeast-1.amazonaws.com/divyendusingh/LingoParrot/voice.mp3",
+        audio_url: voiceFile.Location,
         title: data,
         caption: `${data} (${query})`
       }
     ];
     ctx.answerInlineQuery(result);
   } catch (e) {
-    ctx.reply(e.toString());
+    ctx.answerInlineQuery([
+      makeInlineQueryResultArticle({
+        title: "Error",
+        description: e.toString(),
+        message: e.toString()
+      })
+    ]);
   }
 });
 
@@ -177,7 +195,7 @@ bot.on("text", async ctx => {
     const data = await translate(query, "auto", "de");
     ctx.reply(data);
     const voice = await speak(data, "de-DE");
-    ctx.replyWithVoice({
+    ctx.replyWithAudio({
       source: voice
     });
   } catch (e) {
