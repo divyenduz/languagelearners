@@ -9,7 +9,8 @@
     "dotenv": "^5.0.1",
     "form-data": "^2.3.3",
     "isomorphic-fetch": "^2.2.1",
-    "telegraf": "^3.20.0"
+    "telegraf": "^3.20.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",

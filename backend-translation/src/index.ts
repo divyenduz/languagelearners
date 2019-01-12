@@ -2,6 +2,8 @@ import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
 
+const uuidv4 = require("uuid/v4");
+
 dotenv.config();
 
 console.log(`Environment ${process.env.NODE_ENV}`);
@@ -40,6 +42,21 @@ const translate = async (
   }
 };
 
+const makeInlineQueryResultArticle = ({ title, description, message }) => {
+  return {
+    type: "article",
+    id: uuidv4(),
+    title: title,
+    description: description,
+    input_message_content: {
+      message_text: message
+    },
+    url: "https://lingoparrot.languagelearners.club",
+    thumb_url:
+      "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
+  };
+};
+
 const translateAPI = new AWS.Translate({
   region: "us-east-1",
   accessKeyId: process.env.ACCESS_KEY_ID,
@@ -66,18 +83,11 @@ bot.on("inline_query", async ctx => {
 
   if (!isKnownUser(ctx.from.username)) {
     ctx.answerInlineQuery([
-      {
-        type: "article",
-        id: "1",
+      makeInlineQueryResultArticle({
         title: "Join LanguageLearners",
         description: "Unidentified user",
-        input_message_content: {
-          message_text: userNotKnownErrorMessage(ctx.from.username)
-        },
-        url: "https://lingoparrot.languagelearners.club",
-        thumb_url:
-          "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
-      }
+        message: userNotKnownErrorMessage(ctx.from.username)
+      })
     ]);
     return;
   }
@@ -85,17 +95,11 @@ bot.on("inline_query", async ctx => {
   try {
     const data = await translate(ctx.inlineQuery.query.trim(), "auto", "de");
     const result = [
-      {
-        type: "article",
-        id: "1",
+      makeInlineQueryResultArticle({
         title: data,
         description: "Text",
-        input_message_content: {
-          message_text: `${data} (${ctx.inlineQuery.query.trim()})`
-        },
-        thumb_url:
-          "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
-      }
+        message: `${data} (${ctx.inlineQuery.query.trim()})`
+      })
     ];
     ctx.answerInlineQuery(result);
   } catch (e) {
