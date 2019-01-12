@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
+import * as fs from "fs";
 
 const uuidv4 = require("uuid/v4");
 
@@ -41,17 +42,47 @@ const translate = async (
     throw new Error(`Failed to translate: ${e.toString()}`);
   }
 };
+const speak = async (sourceText, languageCode = "de-DE") => {
+  const germanVoiceId = "Vicki";
+  const defaultVoiceId = germanVoiceId;
+  const voiceIdLanguageCodeMap = {
+    "de-DE": defaultVoiceId
+  };
+  try {
+    const data = await speechAPI
+      .synthesizeSpeech({
+        Text: sourceText,
+        LanguageCode: "de-DE",
+        OutputFormat: "mp3",
+        VoiceId: voiceIdLanguageCodeMap["de-DE"] || defaultVoiceId
+      })
+      .promise();
+    if (!data || !(data.AudioStream instanceof Buffer)) {
+      throw new Error("Failed to synthesize");
+    }
+    // fs.writeFileSync("voice.mp3", data.AudioStream);
+    return data.AudioStream;
+  } catch (e) {
+    throw new Error(`Failed to synthesize: ${e.toString()}`);
+  }
+};
 
-const makeInlineQueryResultArticle = ({ title, description, message }) => {
+const makeInlineQueryResultArticle = ({
+  title,
+  description,
+  message,
+  url = ""
+}) => {
   return {
     type: "article",
     id: uuidv4(),
     title: title,
     description: description,
+
     input_message_content: {
       message_text: message
     },
-    url: "https://lingoparrot.languagelearners.club",
+    url: url,
     thumb_url:
       "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
   };
@@ -62,6 +93,13 @@ const translateAPI = new AWS.Translate({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_KEY_ID,
   apiVersion: "2017-07-01"
+});
+
+const speechAPI = new AWS.Polly({
+  region: "us-east-1",
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_KEY_ID,
+  signatureVersion: "v4"
 });
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
@@ -79,27 +117,46 @@ bot.start(ctx => ctx.reply("Welcome to LingoParrot bot"));
 bot.help(ctx => ctx.reply("This bot translates stuff"));
 
 bot.on("inline_query", async ctx => {
-  console.log(`Inline query from ${ctx.from.username}`);
+  const query = ctx.inlineQuery.query.trim();
+  ctx.inlineQuery.query.trim();
+  console.log(`Inline query ${query} from ${ctx.from.username}`);
 
   if (!isKnownUser(ctx.from.username)) {
+    console.log(
+      makeInlineQueryResultArticle({
+        title: "Join LanguageLearners",
+        description: "Unidentified user",
+        message: userNotKnownErrorMessage(ctx.from.username),
+        url: "https://lingoparrot.languagelearners.club"
+      })
+    );
     ctx.answerInlineQuery([
       makeInlineQueryResultArticle({
         title: "Join LanguageLearners",
         description: "Unidentified user",
-        message: userNotKnownErrorMessage(ctx.from.username)
+        message: userNotKnownErrorMessage(ctx.from.username),
+        url: "https://lingoparrot.languagelearners.club"
       })
     ]);
     return;
   }
 
   try {
-    const data = await translate(ctx.inlineQuery.query.trim(), "auto", "de");
+    const data = await translate(query, "auto", "de");
     const result = [
       makeInlineQueryResultArticle({
         title: data,
         description: "Text",
-        message: `${data} (${ctx.inlineQuery.query.trim()})`
-      })
+        message: `${data} (${query})`
+      }),
+      {
+        type: "audio",
+        id: uuidv4(),
+        audio_url:
+          "https://s3-ap-southeast-1.amazonaws.com/divyendusingh/LingoParrot/voice.mp3",
+        title: data,
+        caption: `${data} (${query})`
+      }
     ];
     ctx.answerInlineQuery(result);
   } catch (e) {
@@ -108,7 +165,8 @@ bot.on("inline_query", async ctx => {
 });
 
 bot.on("text", async ctx => {
-  console.log(`Text from ${ctx.from.username}`);
+  const query = ctx.message.text.trim();
+  console.log(`Text ${query} from ${ctx.from.username}`);
 
   if (!isKnownUser(ctx.from.username)) {
     ctx.reply(userNotKnownErrorMessage(ctx.from.username));
@@ -116,8 +174,12 @@ bot.on("text", async ctx => {
   }
 
   try {
-    const data = await translate(ctx.message.text.trim(), "auto", "de");
+    const data = await translate(query, "auto", "de");
     ctx.reply(data);
+    const voice = await speak(data, "de-DE");
+    ctx.replyWithVoice({
+      source: voice
+    });
   } catch (e) {
     ctx.reply(e.toString());
   }
