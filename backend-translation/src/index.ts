@@ -55,7 +55,7 @@ const speak = async (sourceText, languageCode = "de-DE") => {
       .synthesizeSpeech({
         Text: sourceText,
         LanguageCode: "de-DE",
-        OutputFormat: "mp3",
+        OutputFormat: "ogg_vorbis",
         VoiceId: voiceIdLanguageCodeMap["de-DE"] || defaultVoiceId
       })
       .promise();
@@ -148,7 +148,7 @@ bot.on("inline_query", async ctx => {
 
     const voice = await speak(data, "de-DE");
     const voiceFile = await S3API.upload({
-      Key: `${uuidv4()}.mp3`,
+      Key: `${uuidv4()}.ogg`,
       ACL: "public-read",
       Body: voice,
       ContentLength: voice.byteLength,
@@ -163,9 +163,9 @@ bot.on("inline_query", async ctx => {
         message: `${data} (${query})`
       }),
       {
-        type: "audio",
+        type: "voice",
         id: uuidv4(),
-        audio_url: voiceFile.Location,
+        voice_url: voiceFile.Location,
         title: data,
         caption: `${data} (${query})`
       }
@@ -195,7 +195,7 @@ bot.on("text", async ctx => {
     const data = await translate(query, "auto", "de");
     ctx.reply(data);
     const voice = await speak(data, "de-DE");
-    ctx.replyWithAudio({
+    ctx.replyWithVoice({
       source: voice
     });
   } catch (e) {
