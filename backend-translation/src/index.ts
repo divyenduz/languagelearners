@@ -2,8 +2,11 @@ import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
 // import * as fs from "fs";
-import * as request from "request-promise-native";
+import * as request from "request";
 import { sleep } from "sleep";
+
+const util = require("util");
+const requestPromise = util.promisify(request);
 
 const fetch = require("isomorphic-fetch");
 
@@ -154,18 +157,21 @@ bot.on("voice", async ctx => {
       voiceInfo.result.file_path
     }`;
 
-  const voiceFileStream = await request(voiceFile);
+  const voiceFileStream = await requestPromise(voiceFile);
+  // console.log({ voiceFileStream });
 
   const jobName = uuidv4();
+  console.log(`JobName: ${jobName}`);
   try {
     const voiceFileS3 = await S3API.upload({
       Key: `${jobName}.ogg`,
       ACL: "public-read",
-      Body: voiceFileStream,
+      Body: voiceFileStream.body,
       // ContentLength: voiceFileStream,
       // ContentType: mime(voiceFileStream),
       Bucket: `lingoparrot/transcribe/${process.env.NODE_ENV}`
     }).promise();
+    console.log({ voiceFileS3 });
 
     let job = await talkAPI
       .startTranscriptionJob({
@@ -179,6 +185,7 @@ bot.on("voice", async ctx => {
         }
       })
       .promise();
+    console.log({ job });
 
     while (job.TranscriptionJob.TranscriptionJobStatus === "IN_PROGRESS") {
       sleep(1);
