@@ -3,7 +3,9 @@ import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
 // import * as fs from "fs";
 import * as request from "request";
-import { sleep } from "sleep";
+
+const sleep = waitTimeInMs =>
+  new Promise(resolve => setTimeout(resolve, waitTimeInMs));
 
 const util = require("util");
 const requestPromise = util.promisify(request);
@@ -188,12 +190,17 @@ bot.on("voice", async ctx => {
     console.log({ job });
 
     while (job.TranscriptionJob.TranscriptionJobStatus === "IN_PROGRESS") {
-      sleep(1);
+      await sleep(1000);
       job = await talkAPI
         .getTranscriptionJob({
           TranscriptionJobName: jobName
         })
         .promise();
+      console.log(
+        `polling: `,
+        job.TranscriptionJob.TranscriptionJobName,
+        job.TranscriptionJob.TranscriptionJobStatus
+      );
     }
 
     if (job.TranscriptionJob.TranscriptionJobStatus === "COMPLETED") {
