@@ -2,6 +2,10 @@ import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as AWS from "aws-sdk";
 // import * as fs from "fs";
+import * as request from "request-promise-native";
+import { sleep } from "sleep";
+
+const fetch = require("isomorphic-fetch");
 
 const uuidv4 = require("uuid/v4");
 // const mime = require("mime-types");
@@ -104,11 +108,18 @@ const speechAPI = new AWS.Polly({
   signatureVersion: "v4"
 });
 
+const talkAPI = new AWS.TranscribeService({
+  region: "us-east-1",
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_KEY_ID,
+  apiVersion: "2017-10-26"
+});
+
 const S3API = new AWS.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_KEY_ID
   // params: {
-  //   Bucket: `divyendusingh/LingoParrot/${process.env.NODE_ENV}`
+  //   Bucket: `lingoparrot/${process.env.NODE_ENV}`
   // }
 });
 
@@ -125,6 +136,80 @@ bot.use((ctx, next) => {
 bot.start(ctx => ctx.reply("Welcome to LingoParrot bot"));
 
 bot.help(ctx => ctx.reply("This bot translates stuff"));
+
+bot.on("voice", async ctx => {
+  const query = ctx.message.voice;
+  console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
+  const voiceInfoJSON = await fetch(
+    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${
+      query.file_id
+    }`
+  );
+  const voiceInfo = await voiceInfoJSON.json();
+  const hardcodedFile = "https://s3.amazonaws.com/lingoparrot/voice.mp3";
+  // const hardcodedFile = null;
+  const voiceFile =
+    hardcodedFile ||
+    `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${
+      voiceInfo.result.file_path
+    }`;
+
+  const voiceFileStream = await request(voiceFile);
+
+  const jobName = uuidv4();
+  try {
+    const voiceFileS3 = await S3API.upload({
+      Key: `${jobName}.ogg`,
+      ACL: "public-read",
+      Body: voiceFileStream,
+      // ContentLength: voiceFileStream,
+      // ContentType: mime(voiceFileStream),
+      Bucket: `lingoparrot/transcribe/${process.env.NODE_ENV}`
+    }).promise();
+
+    let job = await talkAPI
+      .startTranscriptionJob({
+        LanguageCode: "en-US",
+        // OutputBucketName: `lingoparrot`,
+        TranscriptionJobName: jobName,
+        MediaFormat: "mp3",
+        // MediaSampleRateHertz: sampleRate,
+        Media: {
+          MediaFileUri: hardcodedFile || voiceFileS3.Location
+        }
+      })
+      .promise();
+
+    while (job.TranscriptionJob.TranscriptionJobStatus === "IN_PROGRESS") {
+      sleep(1);
+      job = await talkAPI
+        .getTranscriptionJob({
+          TranscriptionJobName: jobName
+        })
+        .promise();
+    }
+
+    if (job.TranscriptionJob.TranscriptionJobStatus === "COMPLETED") {
+      const dataJSON = await fetch(
+        job.TranscriptionJob.Transcript.TranscriptFileUri
+      );
+      const data = await dataJSON.json();
+      ctx.reply(
+        data.results.transcripts.reduce(
+          (acc, i) => `${acc} ${i.transcript}`,
+          ""
+        )
+      );
+    } else if (job.TranscriptionJob.TranscriptionJobStatus === "FAILED") {
+      ctx.reply(`Failed to transcribe: ${job.TranscriptionJob.FailureReason}`);
+    } else {
+      console.log({ job });
+      ctx.reply(`Unknown job status`);
+    }
+  } catch (e) {
+    ctx.reply(e.toString());
+  }
+});
 
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
@@ -153,7 +238,7 @@ bot.on("inline_query", async ctx => {
       Body: voice,
       ContentLength: voice.byteLength,
       ContentType: mime(voice),
-      Bucket: `divyendusingh/LingoParrot/${process.env.NODE_ENV}`
+      Bucket: `lingoparrot/polly/${process.env.NODE_ENV}`
     }).promise();
 
     const result = [

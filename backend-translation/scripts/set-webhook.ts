@@ -1,7 +1,8 @@
 import * as dotenv from "dotenv";
-import * as fetch from "isomorphic-fetch";
 import * as arg from "arg";
 import * as FormData from "form-data";
+
+const fetch = require("isomorphic-fetch");
 
 const args = arg({
   "--production": Boolean,
