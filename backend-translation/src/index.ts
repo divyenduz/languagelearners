@@ -1,229 +1,56 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
-import * as AWS from "aws-sdk";
-// import * as fs from "fs";
-import * as request from "request";
 
-const sleep = waitTimeInMs =>
-  new Promise(resolve => setTimeout(resolve, waitTimeInMs));
+// import { transcribe } from "./future/transcribe";
+import { isKnownUser, userNotKnownErrorMessage } from "./user";
+import {
+  makeInlineQueryResultArticle,
+  makeInlineQueryResultVoice,
+  addBotManners
+} from "./message";
 
-const util = require("util");
-const requestPromise = util.promisify(request);
-
-const fetch = require("isomorphic-fetch");
-
-const uuidv4 = require("uuid/v4");
-// const mime = require("mime-types");
-const mime = require("buffer-type");
+import { translate, speech, upload } from "./wrapper";
+import { transcribe } from "./future/transcribe";
+import { moveTelegramFileToS3 } from "./wrapper/telegram";
 
 dotenv.config();
 
 console.log(`Environment ${process.env.NODE_ENV}`);
 const production = process.env.NODE_ENV === "production" ? true : false;
+const debug = process.env.DEBUG || !production;
 
-const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01"];
-const knownUsers = production ? [...betaTesters] : [...betaTesters];
-
-const isKnownUser = userName => {
-  const index = knownUsers.indexOf(userName);
-  return index > -1;
-};
-const userNotKnownErrorMessage = userName => {
-  const joinLink = "https://languagelearners.club";
-  return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
-};
-const translate = async (
-  sourceText,
-  sourceLanguageCode = "auto",
-  targetLanguageCode = "de"
-) => {
-  try {
-    const data = await translateAPI
-      .translateText({
-        SourceLanguageCode: sourceLanguageCode,
-        TargetLanguageCode: targetLanguageCode,
-        Text: sourceText
-      })
-      .promise();
-    if (!data || !data.TranslatedText) {
-      throw new Error("Failed to translate");
-    }
-    return data && data.TranslatedText;
-  } catch (e) {
-    throw new Error(`Failed to translate: ${e.toString()}`);
-  }
-};
-const speak = async (sourceText, languageCode = "de-DE") => {
-  const germanVoiceId = "Vicki";
-  const defaultVoiceId = germanVoiceId;
-  const voiceIdLanguageCodeMap = {
-    "de-DE": defaultVoiceId
-  };
-  try {
-    const data = await speechAPI
-      .synthesizeSpeech({
-        Text: sourceText,
-        LanguageCode: "de-DE",
-        OutputFormat: "ogg_vorbis",
-        VoiceId: voiceIdLanguageCodeMap["de-DE"] || defaultVoiceId
-      })
-      .promise();
-    if (!data || !(data.AudioStream instanceof Buffer)) {
-      throw new Error("Failed to synthesize");
-    }
-    // fs.writeFileSync("voice.mp3", data.AudioStream);
-    return data.AudioStream;
-  } catch (e) {
-    throw new Error(`Failed to synthesize: ${e.toString()}`);
-  }
-};
-
-const makeInlineQueryResultArticle = ({
-  title,
-  description,
-  message,
-  url = ""
-}) => {
-  return {
-    type: "article",
-    id: uuidv4(),
-    title: title,
-    description: description,
-
-    input_message_content: {
-      message_text: message
-    },
-    url: url,
-    thumb_url:
-      "https://lingoparrot.languagelearners.club/assets/images/image01.jpg?v34762461586451"
-  };
-};
-
-const translateAPI = new AWS.Translate({
-  region: "us-east-1",
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_KEY_ID,
-  apiVersion: "2017-07-01"
-});
-
-const speechAPI = new AWS.Polly({
-  region: "us-east-1",
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_KEY_ID,
-  signatureVersion: "v4"
-});
-
-const talkAPI = new AWS.TranscribeService({
-  region: "us-east-1",
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_KEY_ID,
-  apiVersion: "2017-10-26"
-});
-
-const S3API = new AWS.S3({
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_KEY_ID
-  // params: {
-  //   Bucket: `lingoparrot/${process.env.NODE_ENV}`
-  // }
-});
-
+const uuidv4 = require("uuid/v4");
 const bot = new Telegraf(process.env.BOT_TOKEN);
+addBotManners(bot);
 
-bot.use((ctx, next) => {
-  const start = new Date();
-  return next(ctx).then(() => {
-    const ms = +new Date() - +start;
-    console.log("Response time %sms", ms);
+const featureFlags = {
+  botSpeech: false,
+  botTranscribe: false
+};
+
+if (featureFlags.botTranscribe) {
+  // TODO: Get bot stuff back here making future/transcribe independent of bot and bot context
+  // transcribe(bot, S3API);
+  bot.on("voice", async ctx => {
+    const query = ctx.message.voice;
+    console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
+    const jobName = uuidv4();
+    console.log(`JobName: ${jobName}`);
+    try {
+      const hardcodedFileUrl = "https://s3.amazonaws.com/lingoparrot/voice.mp3";
+      const voiceFileS3Url =
+        hardcodedFileUrl ||
+        (await moveTelegramFileToS3(query, `${jobName}.ogg`));
+      if (debug) {
+        console.log({ voiceFileS3Url });
+      }
+      const transcription = await transcribe(jobName, voiceFileS3Url);
+      ctx.reply(transcription);
+    } catch (e) {
+      throw new Error(`Error: ${e.toString()}`);
+    }
   });
-});
-
-bot.start(ctx => ctx.reply("Welcome to LingoParrot bot"));
-
-bot.help(ctx => ctx.reply("This bot translates stuff"));
-
-bot.on("voice", async ctx => {
-  const query = ctx.message.voice;
-  console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
-  const voiceInfoJSON = await fetch(
-    `https://api.telegram.org/bot${process.env.BOT_TOKEN}/getFile?file_id=${
-      query.file_id
-    }`
-  );
-  const voiceInfo = await voiceInfoJSON.json();
-  const hardcodedFile = "https://s3.amazonaws.com/lingoparrot/voice.mp3";
-  // const hardcodedFile = null;
-  const voiceFile =
-    hardcodedFile ||
-    `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${
-      voiceInfo.result.file_path
-    }`;
-
-  const voiceFileStream = await requestPromise(voiceFile);
-  // console.log({ voiceFileStream });
-
-  const jobName = uuidv4();
-  console.log(`JobName: ${jobName}`);
-  try {
-    const voiceFileS3 = await S3API.upload({
-      Key: `${jobName}.ogg`,
-      ACL: "public-read",
-      Body: voiceFileStream.body,
-      // ContentLength: voiceFileStream,
-      // ContentType: mime(voiceFileStream),
-      Bucket: `lingoparrot/transcribe/${process.env.NODE_ENV}`
-    }).promise();
-    console.log({ voiceFileS3 });
-
-    let job = await talkAPI
-      .startTranscriptionJob({
-        LanguageCode: "en-US",
-        // OutputBucketName: `lingoparrot`,
-        TranscriptionJobName: jobName,
-        MediaFormat: "mp3",
-        // MediaSampleRateHertz: sampleRate,
-        Media: {
-          MediaFileUri: hardcodedFile || voiceFileS3.Location
-        }
-      })
-      .promise();
-    console.log({ job });
-
-    while (job.TranscriptionJob.TranscriptionJobStatus === "IN_PROGRESS") {
-      await sleep(1000);
-      job = await talkAPI
-        .getTranscriptionJob({
-          TranscriptionJobName: jobName
-        })
-        .promise();
-      console.log(
-        `polling: `,
-        job.TranscriptionJob.TranscriptionJobName,
-        job.TranscriptionJob.TranscriptionJobStatus
-      );
-    }
-
-    if (job.TranscriptionJob.TranscriptionJobStatus === "COMPLETED") {
-      const dataJSON = await fetch(
-        job.TranscriptionJob.Transcript.TranscriptFileUri
-      );
-      const data = await dataJSON.json();
-      ctx.reply(
-        data.results.transcripts.reduce(
-          (acc, i) => `${acc} ${i.transcript}`,
-          ""
-        )
-      );
-    } else if (job.TranscriptionJob.TranscriptionJobStatus === "FAILED") {
-      ctx.reply(`Failed to transcribe: ${job.TranscriptionJob.FailureReason}`);
-    } else {
-      console.log({ job });
-      ctx.reply(`Unknown job status`);
-    }
-  } catch (e) {
-    ctx.reply(e.toString());
-  }
-});
+}
 
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
@@ -245,30 +72,35 @@ bot.on("inline_query", async ctx => {
   try {
     const data = await translate(query, "auto", "de");
 
-    const voice = await speak(data, "de-DE");
-    const voiceFile = await S3API.upload({
-      Key: `${uuidv4()}.ogg`,
-      ACL: "public-read",
-      Body: voice,
-      ContentLength: voice.byteLength,
-      ContentType: mime(voice),
-      Bucket: `lingoparrot/polly/${process.env.NODE_ENV}`
-    }).promise();
-
-    const result = [
+    // TODO: Can this be made const?
+    // TODO: Can this type cast be removed
+    let result: Array<any> = [
       makeInlineQueryResultArticle({
         title: data,
         description: "Text",
         message: `${data} (${query})`
-      }),
-      {
-        type: "voice",
-        id: uuidv4(),
-        voice_url: voiceFile.Location,
-        title: data,
-        caption: `${data} (${query})`
-      }
+      })
     ];
+    if (featureFlags.botSpeech) {
+      const voice = await speech(data, "de-DE");
+      const fileUrl = await upload({
+        name: `${uuidv4()}.ogg`,
+        buffer: voice,
+        folder: `polly`
+      });
+
+      result = [
+        ...result,
+        ...[
+          makeInlineQueryResultVoice({
+            title: data,
+            caption: `${data} (${query})`,
+            voiceUrl: fileUrl
+          })
+        ]
+      ];
+    }
+
     ctx.answerInlineQuery(result);
   } catch (e) {
     ctx.answerInlineQuery([
@@ -293,10 +125,13 @@ bot.on("text", async ctx => {
   try {
     const data = await translate(query, "auto", "de");
     ctx.reply(data);
-    const voice = await speak(data, "de-DE");
-    ctx.replyWithVoice({
-      source: voice
-    });
+
+    if (featureFlags.botSpeech) {
+      const voice = await speech(data, "de-DE");
+      ctx.replyWithVoice({
+        source: voice
+      });
+    }
   } catch (e) {
     ctx.reply(e.toString());
   }

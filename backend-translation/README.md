@@ -1,32 +1,54 @@
-### Setup
+## Setup
 
-Built with [telegraf](http://telegraf.js.org/#/), [Telegram Bot API](https://core.telegram.org/bots/api) and <3
+Built with [telegraf](http://telegraf.js.org/#/), [Telegram Bot API](https://core.telegram.org/bots/api), AWS and ❤️
 
-### Run
+---
 
-Setup `BOT_TOKEN` and AWS credentials in `.env` file.
+## Development/Production Workflow
 
-To setup a webhook for a bot, run the following
-`yarn run set-webhook <env to set> $BOT_TOKEN` // After `source .env` or hardcode the value.
+We use a specific dev/production setup. For all the relevant commands, yarn scripts have two variants like:
 
-```
-nodemon index.js
-```
+1.  `yarn run set-webhook`
+2.  `yarn run set-webhook-production`
 
-### Deploy
+The 1st one uses `.env` and the 2nd one uses `.env.production`. With sensible defaults, I believe that this setup is most convenient for bot development and yields least mistakes. Open to feedback.
 
-`sls deploy`
+---
 
-Current known URL: https://t1bfb781ya.execute-api.us-east-1.amazonaws.com/dev/
+## Development Setup
 
-### Resources
+Copy `.env_sample` file to `.env` (and `.env.production` for a production setup - details later) and fill the required values.
+
+Run the following commands to start receiving `@<bot-name>` requests on your local machine.
+
+1.  `yarn run start` - to run the project locally (via `sls offline start`, supports hot realoading ).
+2.  `yarn run watch` - to watch and compile TS to JS.
+3.  `yarn run tunnel` - to create a tunnel from local to the internet, copy the url from this step.
+4.  `yarn run set-webhook <url-from-step-3>` - to point the bot to local development version (uses `.env`).
+
+Generally, i have two versions of the bot i.e. development and production. I point my dev bot to my local setup using the above steps.
+
+---
+
+## Deploy Development
+
+`yarn run deploy` - deploys to Lambda using parameters from `.env`
+
+---
+
+## Deploy Production
+
+`yarn run deploy-production` - deploys to Lambda using parameters from `.env.production`
+
+---
+
+## Resources
 
 * https://telegraf.js.org/#/
-
 * https://core.telegram.org/bots/api#inlinequeryresult
-
 * https://aws.amazon.com/translate/pricing/
 * https://docs.aws.amazon.com/translate/latest/dg/API_TranslateText.html
 * https://docs.aws.amazon.com/translate/latest/dg/pairs.html
-
 * https://ibb.co/rx3tsGD (Pricing for a conversational app)
+
+---
