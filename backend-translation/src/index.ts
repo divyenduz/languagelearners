@@ -53,7 +53,7 @@ if (featureFlags.botTranscribe) {
       const transcription = await transcribe(jobName, voiceFileS3Url);
       ctx.reply(transcription);
     } catch (e) {
-      throw new Error(`Error: ${e.toString()}`);
+      console.log(e.toString());
     }
   });
 }
@@ -114,13 +114,7 @@ bot.on("inline_query", async ctx => {
 
     ctx.answerInlineQuery(result);
   } catch (e) {
-    ctx.answerInlineQuery([
-      makeInlineQueryResultArticle({
-        title: "Error",
-        description: e.toString(),
-        message: e.toString()
-      })
-    ]);
+    console.log(e.toString());
   }
 });
 
@@ -149,7 +143,7 @@ bot.on("text", async ctx => {
       });
     }
   } catch (e) {
-    ctx.reply(e.toString());
+    console.log(e.toString());
   }
 });
 
