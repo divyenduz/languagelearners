@@ -19,6 +19,9 @@ import {
 } from "./wrapper";
 import { transcribe } from "./future/transcribe";
 
+const awsXRay = require("aws-xray-sdk");
+const awsSdk = awsXRay.captureAWS(require("aws-sdk"));
+
 dotenv.config();
 
 console.log(`Environment ${process.env.NODE_ENV}`);
@@ -152,7 +155,7 @@ bot.on("text", async ctx => {
 module.exports.handler = (event, ctx, callback) => {
   const tmp = JSON.parse(event.body);
   bot.handleUpdate(tmp);
-  return callback(null, {
+  callback(null, {
     statusCode: 200,
     body: "Working"
   });

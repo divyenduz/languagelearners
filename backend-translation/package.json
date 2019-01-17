@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@iopipe/iopipe": "^1.12.1",
     "arg": "^4.1.0",
     "aws-sdk": "^2.387.0",
     "buffer-type": "^1.0.0",
@@ -22,7 +23,9 @@
     "node-env-run": "^3.0.2",
     "prettier": "^1.12.1",
     "serverless-dotenv-plugin": "^2.0.1",
-    "serverless-offline": "^3.31.3"
+    "serverless-offline": "^3.31.3",
+    "serverless-plugin-iopipe": "^1.6.2",
+    "serverless-plugin-tracing": "^2.0.0"
   },
   "scripts": {
     "dev": "sls offline start",

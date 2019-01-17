@@ -5,10 +5,20 @@ frameworkVersion: "=1.35.1"
 plugins:
   - serverless-dotenv-plugin
   - serverless-offline
+  - serverless-plugin-tracing
+  - serverless-plugin-iopipe
 
 provider:
   name: aws
   runtime: nodejs8.10
+  tracing: true
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "xray:PutTraceSegments"
+        - "xray:PutTelemetryRecords"
+      Resource:
+        - "*"
 
 stage: ${env:NODE_ENV}
 region: us-east-1
@@ -26,12 +36,8 @@ functions:
       - http:
           path: /
           method: post
-    memorySize: 128 
-    timeout: 6 
-    environment:
-      BOT_TOKEN: "${env:BOT_TOKEN}"
-      ACCESS_KEY_ID: "${env:ACCESS_KEY_ID}"
-      SECRET_KEY_ID: "${env:SECRET_KEY_ID}"
+    memorySize: 128
+    timeout: 3
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
