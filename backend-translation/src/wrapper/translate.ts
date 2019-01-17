@@ -1,4 +1,4 @@
-import { translateAPI } from "../api/index";
+import { translateAPI } from "../api";
 
 export const translate = async (
   sourceText,
