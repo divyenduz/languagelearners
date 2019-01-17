@@ -48,3 +48,9 @@ export const makeInlineQueryResultVoice = ({ title, caption, voiceUrl }) => {
     caption: caption
   };
 };
+
+export const detectViaBotText = text => {
+  // https://regex101.com/r/U15Tkv/1
+  const regex = /^(.*?)+\(.*?\)$/gm;
+  return regex.exec(text) !== null;
+};
