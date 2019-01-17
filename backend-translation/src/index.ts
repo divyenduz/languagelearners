@@ -75,7 +75,12 @@ bot.on("inline_query", async ctx => {
   }
 
   try {
-    const data = await translate(query, "auto", "de");
+    const dominantLanguage = await comprehend(query);
+    const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+    if (debug) {
+      console.log({ query }, { dominantLanguage });
+    }
+    const data = await translate(query, "auto", targetLanguage);
 
     // TODO: Can this be made const?
     // TODO: Can this type cast be removed
