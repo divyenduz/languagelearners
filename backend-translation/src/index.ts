@@ -6,8 +6,8 @@ import { isKnownUser, userNotKnownErrorMessage } from "./user";
 import {
   makeInlineQueryResultArticle,
   makeInlineQueryResultVoice,
-  addBotManners,
-  detectViaBotText
+  addBotManners
+  // detectViaBotText
 } from "./message";
 
 import {
@@ -127,16 +127,6 @@ bot.on("inline_query", async ctx => {
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
   console.log(`Text ${query} from ${ctx.from.username}`);
-
-  // TODO: This uses regex to detect pattern
-  // <source-text> (<target-text>)
-  // Is this ok? There was no way to detect this via context message.
-  if (detectViaBotText(query)) {
-    if (debug) {
-      console.log("Detected a message sent via bot");
-    }
-    return;
-  }
 
   if (!isKnownUser(ctx.from.username)) {
     ctx.reply(userNotKnownErrorMessage(ctx.from.username));
