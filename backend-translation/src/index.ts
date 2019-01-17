@@ -9,9 +9,14 @@ import {
   addBotManners
 } from "./message";
 
-import { translate, speech, upload } from "./wrapper";
+import {
+  translate,
+  speech,
+  upload,
+  comprehend,
+  moveTelegramFileToS3
+} from "./wrapper";
 import { transcribe } from "./future/transcribe";
-import { moveTelegramFileToS3 } from "./wrapper/telegram";
 
 dotenv.config();
 
@@ -123,7 +128,12 @@ bot.on("text", async ctx => {
   }
 
   try {
-    const data = await translate(query, "auto", "de");
+    const dominantLanguage = await comprehend(query);
+    const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+    if (debug) {
+      console.log({ query }, { dominantLanguage });
+    }
+    const data = await translate(query, "auto", targetLanguage);
     ctx.reply(data);
 
     if (featureFlags.botSpeech) {

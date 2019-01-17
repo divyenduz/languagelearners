@@ -1,4 +1,4 @@
-import { storageAPI } from "../api/index";
+import { storageAPI } from "../api";
 
 export const upload = async ({
   name,

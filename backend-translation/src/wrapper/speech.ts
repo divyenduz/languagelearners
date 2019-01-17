@@ -1,4 +1,4 @@
-import { speechAPI } from "../api/speech";
+import { speechAPI } from "../api";
 
 export const speech = async (sourceText, languageCode = "de-DE") => {
   const germanVoiceId = "Vicki";
