@@ -26,8 +26,8 @@ functions:
       - http:
           path: /
           method: post
-    memorySize: 128
-    timeout: 120
+    memorySize: 256 
+    timeout: 6 
     environment:
       BOT_TOKEN: "${env:BOT_TOKEN}"
       ACCESS_KEY_ID: "${env:ACCESS_KEY_ID}"
