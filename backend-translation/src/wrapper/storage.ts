@@ -7,16 +7,19 @@ export const upload = async ({
   length = null,
   type = null
 }) => {
-  // TODO: Wrap this in try catch
-  const file = await storageAPI
-    .upload({
-      Key: name,
-      ACL: "public-read",
-      Body: buffer,
-      ...(length && { ContentLength: length }),
-      ...(type && { ContentType: type }),
-      Bucket: `lingoparrot/${folder}/${process.env.NODE_ENV}`
-    })
-    .promise();
-  return file.Location;
+  try {
+    const file = await storageAPI
+      .upload({
+        Key: name,
+        ACL: "public-read",
+        Body: buffer,
+        ...(length && { ContentLength: length }),
+        ...(type && { ContentType: type }),
+        Bucket: `lingoparrot/${folder}/${process.env.NODE_ENV}`
+      })
+      .promise();
+    return file.Location;
+  } catch (e) {
+    throw new Error(`Failed to upload the file: ${e.toString()}`);
+  }
 };

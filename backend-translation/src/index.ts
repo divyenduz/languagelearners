@@ -2,7 +2,7 @@ import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 
 // import { transcribe } from "./future/transcribe";
-import { isKnownUser, userNotKnownErrorMessage } from "./user";
+import { addBotAccess } from "./user";
 import {
   makeInlineQueryResultArticle,
   makeInlineQueryResultVoice,
@@ -28,6 +28,7 @@ const debug = process.env.DEBUG || !production;
 const uuidv4 = require("uuid/v4");
 const bot = new Telegraf(process.env.BOT_TOKEN);
 addBotManners(bot);
+addBotAccess(bot);
 
 const featureFlags = {
   botSpeech: false,
@@ -35,8 +36,6 @@ const featureFlags = {
 };
 
 if (featureFlags.botTranscribe) {
-  // TODO: Get bot stuff back here making future/transcribe independent of bot and bot context
-  // transcribe(bot, S3API);
   bot.on("voice", async ctx => {
     const query = ctx.message.voice;
     console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
@@ -60,20 +59,7 @@ if (featureFlags.botTranscribe) {
 
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
-  ctx.inlineQuery.query.trim();
   console.log(`Inline query ${query} from ${ctx.from.username}`);
-
-  if (!isKnownUser(ctx.from.username)) {
-    ctx.answerInlineQuery([
-      makeInlineQueryResultArticle({
-        title: "Join LanguageLearners",
-        description: "Unidentified user",
-        message: userNotKnownErrorMessage(ctx.from.username),
-        url: "https://lingoparrot.languagelearners.club"
-      })
-    ]);
-    return;
-  }
 
   try {
     const dominantLanguage = await comprehend(query);
@@ -83,7 +69,6 @@ bot.on("inline_query", async ctx => {
     }
     const data = await translate(query, "auto", targetLanguage);
 
-    // TODO: Can this be made const?
     // TODO: Can this type cast be removed
     let result: Array<any> = [
       makeInlineQueryResultArticle({
@@ -121,11 +106,6 @@ bot.on("inline_query", async ctx => {
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
   console.log(`Text ${query} from ${ctx.from.username}`);
-
-  if (!isKnownUser(ctx.from.username)) {
-    ctx.reply(userNotKnownErrorMessage(ctx.from.username));
-    return;
-  }
 
   try {
     const dominantLanguage = await comprehend(query);
