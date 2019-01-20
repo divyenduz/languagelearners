@@ -21,6 +21,7 @@ import { transcribe } from "./future/transcribe";
 
 dotenv.config();
 
+// TODO: Unify environment with middleware.
 console.log(`Environment ${process.env.NODE_ENV}`);
 const production = process.env.NODE_ENV === "production" ? true : false;
 const debug = process.env.DEBUG || !production;
@@ -59,7 +60,6 @@ if (featureFlags.botTranscribe) {
 
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
-  console.log(`Inline query ${query} from ${ctx.from.username}`);
 
   try {
     const dominantLanguage = await comprehend(query);
@@ -105,7 +105,6 @@ bot.on("inline_query", async ctx => {
 
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
-  console.log(`Text ${query} from ${ctx.from.username}`);
 
   try {
     const dominantLanguage = await comprehend(query);

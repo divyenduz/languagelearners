@@ -25,7 +25,7 @@ export const addBotAccess = bot => {
       ctx.message.from &&
       ctx.message.chat &&
       ctx.message.chat.type === "private" &&
-      !isKnownUser(ctx.message.from.userName)
+      !isKnownUser(ctx.message.from.username)
     ) {
       console.log(`private chat but but unknown user`);
       ctx.reply(userNotKnownErrorMessage(ctx.from.username));

@@ -2,6 +2,14 @@ const uuidv4 = require("uuid/v4");
 
 export const addBotManners = bot => {
   bot.use((ctx, next) => {
+    // TODO: Unify logging in its own middleware.
+    const from =
+      (ctx.message && ctx.message.from && ctx.message.from) ||
+      (ctx.inlineQuery && ctx.inlineQuery.from && ctx.inlineQuery.from);
+    const query =
+      (ctx.message && ctx.message.text.trim()) ||
+      (ctx.inlineQuery && ctx.inlineQuery.query.trim());
+    console.log(`${ctx.updateType} - ${query} from user ${from.username}`);
     const start = new Date();
     return next(ctx).then(() => {
       const ms = +new Date() - +start;
