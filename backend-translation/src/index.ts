@@ -97,7 +97,10 @@ bot.on("inline_query", async ctx => {
       ];
     }
 
-    ctx.answerInlineQuery(result);
+    ctx.answerInlineQuery(result, {
+      is_personal: true,
+      cache_time: 0
+    });
   } catch (e) {
     console.log(e.toString());
   }

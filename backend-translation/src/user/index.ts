@@ -9,13 +9,19 @@ export const addBotAccess = bot => {
   bot.use((ctx, next) => {
     if (ctx.inlineQuery && !isKnownUser(ctx.from.username)) {
       console.log(`inlineQuery but unknown user`);
-      ctx.answerInlineQuery([
-        makeInlineQueryResultArticle({
-          title: "Join LanguageLearners to use the LingoParrot bot.",
-          description: "https://languagelearners.club",
-          message: userNotKnownErrorMessage(ctx.from.username)
-        })
-      ]);
+      ctx.answerInlineQuery(
+        [
+          makeInlineQueryResultArticle({
+            title: "Join LanguageLearners to use the LingoParrot bot.",
+            description: "https://languagelearners.club",
+            message: userNotKnownErrorMessage(ctx.from.username)
+          })
+        ]
+        {
+          is_personal: true,
+          cache_time: 0
+        }
+      );
       return;
     }
 
