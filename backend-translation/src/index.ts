@@ -19,9 +19,6 @@ import {
 } from "./wrapper";
 import { transcribe } from "./future/transcribe";
 
-const awsXRay = require("aws-xray-sdk");
-const awsSdk = awsXRay.captureAWS(require("aws-sdk"));
-
 dotenv.config();
 
 console.log(`Environment ${process.env.NODE_ENV}`);
