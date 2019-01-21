@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
+import * as TelegrafMixpanel from "telegraf-mixpanel";
 
 // import { transcribe } from "./future/transcribe";
 import { addBotAccess } from "./user";
@@ -28,6 +29,13 @@ const debug = process.env.DEBUG || !production;
 
 const uuidv4 = require("uuid/v4");
 const bot = new Telegraf(process.env.BOT_TOKEN);
+const mixpanel = new TelegrafMixpanel(process.env.MIXPANEL_TOKEN);
+if (process.env.MIXPANEL_TOKEN) {
+  if (debug) {
+    console.log("using mixpanel");
+  }
+  bot.use(mixpanel.middleware());
+}
 addBotManners(bot);
 addBotAccess(bot);
 
