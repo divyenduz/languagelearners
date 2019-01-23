@@ -2,7 +2,7 @@ import { makeInlineQueryResultArticle } from "../message";
 
 const production = process.env.NODE_ENV === "production" ? true : false;
 
-const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01"];
+const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01", "Lukastrong5"];
 const knownUsers = production ? [...betaTesters] : [...betaTesters];
 
 export const addBotAccess = bot => {
