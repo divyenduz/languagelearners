@@ -111,23 +111,29 @@ bot.on("inline_query", async ctx => {
 });
 
 if (featureFlags.botSpeech) {
-  bot.command("speak", async ctx => {
-    const query = ctx.message.text.replace("/speak", "").trim();
-    try {
-      const dominantLanguage = await comprehend(query);
-      const targetLanguage = dominantLanguage === "de" ? "en" : "de";
-      if (debug) {
-        console.log({ query }, { dominantLanguage });
+  bot.command(
+    ["speak", `speak@LingoParrot${production ? "" : "Dev"}Bot`],
+    async ctx => {
+      const query = ctx.message.text
+        .replace(`@LingoParrot${production ? "" : "Dev"}Bot`, "")
+        .replace("/speak", "")
+        .trim();
+      try {
+        const dominantLanguage = await comprehend(query);
+        const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+        if (debug) {
+          console.log({ query }, { dominantLanguage });
+        }
+        const data = await translate(query, "auto", targetLanguage);
+        const voice = await speech(data, "de-DE");
+        ctx.replyWithVoice({
+          source: voice
+        });
+      } catch (e) {
+        console.log(e.toString());
       }
-      const data = await translate(query, "auto", targetLanguage);
-      const voice = await speech(data, "de-DE");
-      ctx.replyWithVoice({
-        source: voice
-      });
-    } catch (e) {
-      console.log(e.toString());
     }
-  });
+  );
 }
 
 bot.on("text", async ctx => {
