@@ -1,0 +1,3 @@
+start - Welcome message. 
+help - Features of LingoParrot bot.
+speak - Translate and generate a voice message.

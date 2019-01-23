@@ -32,7 +32,7 @@ addBotManners(bot);
 addBotAccess(bot);
 
 const featureFlags = {
-  botSpeech: false,
+  botSpeech: true,
   botTranscribe: false
 };
 
@@ -78,7 +78,11 @@ bot.on("inline_query", async ctx => {
       })
     ];
     if (featureFlags.botSpeech) {
-      const voice = await speech(data, "de-DE");
+      const languageMap = {
+        en: "en-US",
+        de: "de-DE"
+      };
+      const voice = await speech(data, languageMap[targetLanguage]);
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
         buffer: voice,
@@ -106,9 +110,28 @@ bot.on("inline_query", async ctx => {
   }
 });
 
+if (featureFlags.botSpeech) {
+  bot.command("speak", async ctx => {
+    const query = ctx.message.text.replace("/speak", "").trim();
+    try {
+      const dominantLanguage = await comprehend(query);
+      const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+      if (debug) {
+        console.log({ query }, { dominantLanguage });
+      }
+      const data = await translate(query, "auto", targetLanguage);
+      const voice = await speech(data, "de-DE");
+      ctx.replyWithVoice({
+        source: voice
+      });
+    } catch (e) {
+      console.log(e.toString());
+    }
+  });
+}
+
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
-
   try {
     const dominantLanguage = await comprehend(query);
     const targetLanguage = dominantLanguage === "de" ? "en" : "de";
@@ -117,13 +140,6 @@ bot.on("text", async ctx => {
     }
     const data = await translate(query, "auto", targetLanguage);
     ctx.reply(data);
-
-    if (featureFlags.botSpeech) {
-      const voice = await speech(data, "de-DE");
-      ctx.replyWithVoice({
-        source: voice
-      });
-    }
   } catch (e) {
     console.log(e.toString());
   }

@@ -4,7 +4,8 @@ export const speech = async (sourceText, languageCode = "de-DE") => {
   const germanVoiceId = "Vicki";
   const defaultVoiceId = germanVoiceId;
   const voiceIdLanguageCodeMap = {
-    "de-DE": defaultVoiceId
+    "de-DE": defaultVoiceId,
+    "en-US": "Ivy"
   };
   try {
     const data = await speechAPI
