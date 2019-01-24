@@ -1,8 +1,15 @@
-import { makeInlineQueryResultArticle } from "../message";
+import {makeInlineQueryResultArticle} from '../message';
 
-const production = process.env.NODE_ENV === "production" ? true : false;
+const production = process.env.NODE_ENV === 'production' ? true : false;
 
-const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01", "Lukastrong5"];
+const betaTesters = [
+  'divyenduz',
+  'nilanm',
+  'rusrushal13',
+  'yuvika01',
+  'Lukastrong5',
+  'wilbertliu',
+];
 const knownUsers = production ? [...betaTesters] : [...betaTesters];
 
 export const addBotAccess = bot => {
@@ -12,15 +19,15 @@ export const addBotAccess = bot => {
       ctx.answerInlineQuery(
         [
           makeInlineQueryResultArticle({
-            title: "Join LanguageLearners to use the LingoParrot bot.",
-            description: "https://languagelearners.club",
-            message: userNotKnownErrorMessage(ctx.from.username)
-          })
-        ]
+            title: 'Join LanguageLearners to use the LingoParrot bot.',
+            description: 'https://languagelearners.club',
+            message: userNotKnownErrorMessage(ctx.from.username),
+          }),
+        ],
         {
           is_personal: true,
-          cache_time: 0
-        }
+          cache_time: 0,
+        },
       );
       return;
     }
@@ -30,7 +37,7 @@ export const addBotAccess = bot => {
       ctx.message &&
       ctx.message.from &&
       ctx.message.chat &&
-      ctx.message.chat.type === "private" &&
+      ctx.message.chat.type === 'private' &&
       !isKnownUser(ctx.message.from.username)
     ) {
       console.log(`private chat but but unknown user`);
@@ -48,6 +55,6 @@ const isKnownUser = userName => {
   return index > -1;
 };
 const userNotKnownErrorMessage = userName => {
-  const joinLink = "https://languagelearners.club";
+  const joinLink = 'https://languagelearners.club';
   return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
 };
