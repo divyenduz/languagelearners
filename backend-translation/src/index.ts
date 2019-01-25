@@ -160,6 +160,7 @@ module.exports.handler = (event, ctx, callback) => {
       statusCode: 200,
       body: "OK"
     });
+    return;
   }
   const tmp = JSON.parse(event.body);
   bot.handleUpdate(tmp);
