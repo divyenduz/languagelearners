@@ -27,5 +27,6 @@ jobs:
           key: v1-dependencies-{{ checksum "backend-translation/package.json" }}
 
       - run: cd backend-translation && yarn start&
+      - run: cd backend-translation && sleep 5
       - run: cd backend-translation && yarn test
-      - run: cd backend-translation && yarn deploy-production
+      # - run: cd backend-translation && yarn deploy-production
