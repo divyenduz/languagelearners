@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import * as fetch from "isomorphic-fetch";
+import * as fetch from "node-fetch";
 import * as arg from "arg";
 
 const args = arg({

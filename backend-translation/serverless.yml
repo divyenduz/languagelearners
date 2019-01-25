@@ -1,6 +1,6 @@
 service: backend-translation
 
-frameworkVersion: "=1.35.1"
+frameworkVersion: "=1.36.3"
 
 plugins:
   - serverless-dotenv-plugin
@@ -27,5 +27,8 @@ functions:
       - http:
           path: /
           method: post
+      - http:
+          path: /
+          method: get
     memorySize: 128
     timeout: 3

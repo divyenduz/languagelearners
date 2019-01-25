@@ -154,10 +154,17 @@ bot.on("text", async ctx => {
 // bot.startPolling();
 
 module.exports.handler = (event, ctx, callback) => {
+  if (event.httpMethod === "GET") {
+    // For health checks
+    callback(null, {
+      statusCode: 200,
+      body: "OK"
+    });
+  }
   const tmp = JSON.parse(event.body);
   bot.handleUpdate(tmp);
   callback(null, {
     statusCode: 200,
-    body: "Working"
+    body: "DONE"
   });
 };

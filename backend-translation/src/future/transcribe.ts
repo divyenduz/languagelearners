@@ -1,5 +1,5 @@
 import * as AWS from "aws-sdk";
-const fetch = require("isomorphic-fetch");
+const fetch = require("node-fetch");
 
 const sleep = waitTimeInMs =>
   new Promise(resolve => setTimeout(resolve, waitTimeInMs));

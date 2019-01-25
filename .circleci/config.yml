@@ -1,0 +1,31 @@
+version: 2
+jobs:
+  build:
+    filters:
+      branches:
+        only: master
+    docker:
+      # specify the version you desire here
+      - image: circleci/node:8.10
+
+    working_directory: ~/lingo-parrot
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "backend-translation/package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: cd backend-translation && yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "backend-translation/package.json" }}
+
+      - run: cd backend-translation && yarn start&
+      - run: cd backend-translation && yarn test
+      - run: cd backend-translation && yarn deploy-production

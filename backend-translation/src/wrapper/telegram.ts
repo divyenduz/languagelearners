@@ -5,7 +5,7 @@ import { upload } from "./";
 const util = require("util");
 const requestPromise = util.promisify(request);
 
-const fetch = require("isomorphic-fetch");
+const fetch = require("node-fetch");
 
 const getFileUrlFromMessage = async message => {
   const voiceInfoJSON = await fetch(
