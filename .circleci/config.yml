@@ -36,3 +36,4 @@ jobs:
       - run: cd backend-translation && cat nohup.out
       - run: cd backend-translation && yarn test
       - run: cd backend-translation && yarn deploy
+      - run: cd backend-translation && yarn set-webhook
