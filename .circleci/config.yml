@@ -35,5 +35,5 @@ jobs:
             wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
       - run: cd backend-translation && cat nohup.out
       - run: cd backend-translation && yarn test
-      - run: cd backend-translation && yarn deploy
-      - run: cd backend-translation && yarn set-webhook
+      # - run: cd backend-translation && yarn deploy
+      # - run: cd backend-translation && yarn set-webhook
