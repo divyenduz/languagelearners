@@ -26,8 +26,13 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "backend-translation/package.json" }}
 
-      - run: cd backend-translation && nohup yarn start
-      - run: cd backend-translation && sleep 10
+      - run:
+          command: cd backend-translation && nohup yarn start
+          background: true
+      - run:
+          shell: /bin/sh
+          command: |
+            wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 http://localhost:3000
       - run: cd backend-translation && cat nohup.out
       - run: cd backend-translation && yarn test
       - run: cd backend-translation && yarn deploy
