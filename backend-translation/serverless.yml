@@ -32,3 +32,11 @@ functions:
           method: get
     memorySize: 128
     timeout: 3
+    environment: NODE_ENV=${env:NODE_ENV}
+      DEBUG=${env:DEBUG}
+      BACKEND_URL=${env:BACKEND_URL}
+      BOT_TOKEN=${env:BOT_TOKEN}
+      ACCESS_KEY_ID=${env:ACCESS_KEY_ID}
+      SECRET_KEY_ID=${env:SECRET_KEY_ID}
+      IOPIPE_TOKEN=${env:IOPIPE_TOKEN}
+      MIXPANEL_TOKEN=${env:MIXPANEL_TOKEN}
