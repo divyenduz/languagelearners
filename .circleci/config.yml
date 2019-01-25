@@ -27,7 +27,7 @@ jobs:
           key: v1-dependencies-{{ checksum "backend-translation/package.json" }}
 
       - run:
-          command: cd backend-translation && nohup yarn start
+          command: cd backend-translation && yarn build && nohup yarn start
           background: true
       - run:
           shell: /bin/sh
