@@ -11,9 +11,9 @@ export const speech = async (sourceText, languageCode = "de-DE") => {
     const data = await speechAPI
       .synthesizeSpeech({
         Text: sourceText,
-        LanguageCode: "de-DE",
+        LanguageCode: languageCode,
         OutputFormat: "ogg_vorbis",
-        VoiceId: voiceIdLanguageCodeMap["de-DE"] || defaultVoiceId
+        VoiceId: voiceIdLanguageCodeMap[languageCode] || defaultVoiceId
       })
       .promise();
     if (!data || !(data.AudioStream instanceof Buffer)) {
