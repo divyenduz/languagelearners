@@ -125,7 +125,7 @@ if (featureFlags.botSpeech) {
           console.log({ query }, { dominantLanguage });
         }
         const data = await translate(query, "auto", dominantLanguage);
-        const voice = await speech(data, languageMap[targetLanguage]);
+        const voice = await speech(data, languageMap[dominantLanguage]);
         ctx.replyWithVoice({
           source: voice
         });
