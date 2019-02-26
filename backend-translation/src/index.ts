@@ -36,6 +36,11 @@ const featureFlags = {
   botTranscribe: false
 };
 
+const languageMap = {
+  en: "en-US",
+  de: "de-DE"
+};
+
 if (featureFlags.botTranscribe) {
   bot.on("voice", async ctx => {
     const query = ctx.message.voice;
@@ -78,10 +83,6 @@ bot.on("inline_query", async ctx => {
       })
     ];
     if (featureFlags.botSpeech) {
-      const languageMap = {
-        en: "en-US",
-        de: "de-DE"
-      };
       const voice = await speech(data, languageMap[targetLanguage]);
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
@@ -120,12 +121,11 @@ if (featureFlags.botSpeech) {
         .trim();
       try {
         const dominantLanguage = await comprehend(query);
-        const targetLanguage = dominantLanguage === "de" ? "en" : "de";
         if (debug) {
           console.log({ query }, { dominantLanguage });
         }
-        const data = await translate(query, "auto", targetLanguage);
-        const voice = await speech(data, "de-DE");
+        const data = await translate(query, "auto", dominantLanguage);
+        const voice = await speech(data, languageMap[targetLanguage]);
         ctx.replyWithVoice({
           source: voice
         });
