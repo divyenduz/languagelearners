@@ -32,8 +32,18 @@ addBotManners(bot);
 addBotAccess(bot);
 
 const featureFlags = {
-  botSpeech: true,
-  botTranscribe: false
+  inline: {
+    botSpeech: false,
+    botTranscribe: false
+  },
+  command: {
+    botSpeech: true,
+    botTranscribe: false
+  },
+  echo: {
+    botSpeech: false,
+    botTranscribe: false
+  }
 };
 
 const languageMap = {
@@ -41,7 +51,7 @@ const languageMap = {
   de: "de-DE"
 };
 
-if (featureFlags.botTranscribe) {
+if (featureFlags.echo.botTranscribe) {
   bot.on("voice", async ctx => {
     const query = ctx.message.voice;
     console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
@@ -82,7 +92,7 @@ bot.on("inline_query", async ctx => {
         message: `${data} (${query})`
       })
     ];
-    if (featureFlags.botSpeech) {
+    if (featureFlags.inline.botSpeech) {
       const voice = await speech(data, languageMap[targetLanguage]);
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
@@ -111,21 +121,31 @@ bot.on("inline_query", async ctx => {
   }
 });
 
-if (featureFlags.botSpeech) {
+if (featureFlags.command.botSpeech) {
   bot.command(
-    ["speak", `speak@LingoParrot${production ? "" : "Dev"}Bot`],
+    [
+      "speak",
+      `speak@LingoParrot${production ? "" : "Dev"}Bot`,
+      "speakt",
+      `speakt@LingoParrot${production ? "" : "Dev"}Bot`
+    ],
     async ctx => {
+      const useTranslation =
+        (ctx.message.text as string).indexOf("speakt") > -1 ? true : false;
       const query = ctx.message.text
         .replace(`@LingoParrot${production ? "" : "Dev"}Bot`, "")
+        .replace("/speakt", "")
         .replace("/speak", "")
         .trim();
       try {
         const dominantLanguage = await comprehend(query);
+        const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+        const useLanguage = useTranslation ? targetLanguage : dominantLanguage;
         if (debug) {
           console.log({ query }, { dominantLanguage });
         }
-        const data = await translate(query, "auto", dominantLanguage);
-        const voice = await speech(data, languageMap[dominantLanguage]);
+        const data = await translate(query, "auto", useLanguage);
+        const voice = await speech(data, languageMap[useLanguage]);
         ctx.replyWithVoice({
           source: voice
         });

@@ -1,3 +1,4 @@
 start - Welcome message. 
 help - Features of LingoParrot bot.
-speak - Translate and generate a voice message.
+speak - Speak the message
+speakt - Translate and speak the message
