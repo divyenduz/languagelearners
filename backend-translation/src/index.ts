@@ -142,9 +142,16 @@ if (featureFlags.command.botSpeech) {
         const targetLanguage = dominantLanguage === "de" ? "en" : "de";
         const useLanguage = useTranslation ? targetLanguage : dominantLanguage;
         if (debug) {
-          console.log({ query }, { dominantLanguage });
+          console.log(
+            { query },
+            { dominantLanguage },
+            { targetLanguage },
+            { useLanguage }
+          );
         }
-        const data = await translate(query, "auto", useLanguage);
+        const data = useTranslation
+          ? await translate(query, "auto", useLanguage)
+          : query;
         const voice = await speech(data, languageMap[useLanguage]);
         ctx.replyWithVoice({
           source: voice
