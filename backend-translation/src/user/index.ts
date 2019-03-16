@@ -39,7 +39,8 @@ export const addBotAccess = bot => {
       ctx.message &&
       ctx.message.from &&
       ctx.message.chat &&
-      ctx.message.chat.type === "group" &&
+      (ctx.message.chat.type === "group" ||
+        ctx.message.chat.type === "supergroup") &&
       (!isKnownGroup(ctx.message.chat.title) ||
         !isKnownUser(ctx.message.from.username))
     ) {
