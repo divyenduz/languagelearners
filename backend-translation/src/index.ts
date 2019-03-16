@@ -82,7 +82,7 @@ bot.on("inline_query", async ctx => {
     if (debug) {
       console.log({ query }, { dominantLanguage });
     }
-    const data = await translate(query, "auto", targetLanguage);
+    const data = await translate(query, dominantLanguage, targetLanguage);
 
     // TODO: Can this type cast be removed
     let result: Array<any> = [
@@ -150,7 +150,7 @@ if (featureFlags.command.botSpeech) {
           );
         }
         const data = useTranslation
-          ? await translate(query, "auto", useLanguage)
+          ? await translate(query, dominantLanguage, useLanguage)
           : query;
         const voice = await speech(data, languageMap[useLanguage]);
         ctx.replyWithVoice({
@@ -165,13 +165,14 @@ if (featureFlags.command.botSpeech) {
 
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
+
   try {
     const dominantLanguage = await comprehend(query);
     const targetLanguage = dominantLanguage === "de" ? "en" : "de";
     if (debug) {
       console.log({ query }, { dominantLanguage });
     }
-    const data = await translate(query, "auto", targetLanguage);
+    const data = await translate(query, dominantLanguage, targetLanguage);
     ctx.reply(data);
   } catch (e) {
     console.log(e.toString());
