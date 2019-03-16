@@ -2118,7 +2118,7 @@ http-signature@~1.2.0:
     jsprim "^1.2.2"
     sshpk "^1.7.0"
 
-https-proxy-agent@^2.2.1:
+https-proxy-agent@2.2.1, https-proxy-agent@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/https-proxy-agent/-/https-proxy-agent-2.2.1.tgz#51552970fa04d723e04c56d04178c3f92592bbc0"
   dependencies:
@@ -3370,6 +3370,12 @@ mixin-deep@^1.2.0:
   dependencies:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
+
+mixpanel@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/mixpanel/-/mixpanel-0.10.1.tgz#0845390cea3768f53dc8dd0cda80edbce571fc10"
+  dependencies:
+    https-proxy-agent "2.2.1"
 
 mkdirp@0.x, mkdirp@^0.5.0, mkdirp@^0.5.1:
   version "0.5.1"
