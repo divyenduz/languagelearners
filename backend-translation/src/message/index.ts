@@ -1,3 +1,5 @@
+import { Mixpanel } from "mixpanel";
+
 const uuidv4 = require("uuid/v4");
 
 // TODO: Unify environment with middleware.
@@ -17,16 +19,20 @@ export const addBotManners = bot => {
     console.log(`${ctx.updateType} - ${query} from user ${from.username}`);
 
     if (ctx.mixpanel) {
+      const mixpanel: Mixpanel = ctx.mixpanel;
       if (debug) {
-        console.log(`metrics - tracking user stats`);
+        console.log(`metrics - tracking user stats for user: ${from.username}`);
       }
-      ctx.mixpanel.track("received");
-      // console.log(ctx.mixpanel.client);
-      console.log(from.username);
-      // ctx.mixpanel.client.alias(from.username);
-      // ctx.mixpanel.client.identify(from.username);
-      ctx.mixpanel.people.increment("messages", 1);
-      ctx.mixpanel.people.increment("characters", query.length);
+      mixpanel.people.set(from.username, {
+        $first_name: from.first_name,
+        $last_name: from.last_name,
+        plan: "premium"
+      });
+      mixpanel.track("received_message", {
+        $distinct_id: from.username
+      });
+      mixpanel.people.increment(from.username, "messages", 1);
+      mixpanel.people.increment(from.username, "characters", query.length);
     }
 
     const start = new Date();
