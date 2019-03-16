@@ -40,11 +40,26 @@ addBotManners(bot);
 addBotAccess(bot);
 
 const featureFlags = {
-  botSpeech: false,
-  botTranscribe: false
+  inline: {
+    botSpeech: false,
+    botTranscribe: false
+  },
+  command: {
+    botSpeech: true,
+    botTranscribe: false
+  },
+  echo: {
+    botSpeech: false,
+    botTranscribe: false
+  }
 };
 
-if (featureFlags.botTranscribe) {
+const languageMap = {
+  en: "en-US",
+  de: "de-DE"
+};
+
+if (featureFlags.echo.botTranscribe) {
   bot.on("voice", async ctx => {
     const query = ctx.message.voice;
     console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
@@ -75,7 +90,7 @@ bot.on("inline_query", async ctx => {
     if (debug) {
       console.log({ query }, { dominantLanguage });
     }
-    const data = await translate(query, "auto", targetLanguage);
+    const data = await translate(query, dominantLanguage, targetLanguage);
 
     // TODO: Can this type cast be removed
     let result: Array<any> = [
@@ -85,8 +100,8 @@ bot.on("inline_query", async ctx => {
         message: `${data} (${query})`
       })
     ];
-    if (featureFlags.botSpeech) {
-      const voice = await speech(data, "de-DE");
+    if (featureFlags.inline.botSpeech) {
+      const voice = await speech(data, languageMap[targetLanguage]);
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
         buffer: voice,
@@ -114,6 +129,48 @@ bot.on("inline_query", async ctx => {
   }
 });
 
+if (featureFlags.command.botSpeech) {
+  bot.command(
+    [
+      "speak",
+      `speak@LingoParrot${production ? "" : "Dev"}Bot`,
+      "speakt",
+      `speakt@LingoParrot${production ? "" : "Dev"}Bot`
+    ],
+    async ctx => {
+      const useTranslation =
+        (ctx.message.text as string).indexOf("speakt") > -1 ? true : false;
+      const query = ctx.message.text
+        .replace(`@LingoParrot${production ? "" : "Dev"}Bot`, "")
+        .replace("/speakt", "")
+        .replace("/speak", "")
+        .trim();
+      try {
+        const dominantLanguage = await comprehend(query);
+        const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+        const useLanguage = useTranslation ? targetLanguage : dominantLanguage;
+        if (debug) {
+          console.log(
+            { query },
+            { dominantLanguage },
+            { targetLanguage },
+            { useLanguage }
+          );
+        }
+        const data = useTranslation
+          ? await translate(query, dominantLanguage, useLanguage)
+          : query;
+        const voice = await speech(data, languageMap[useLanguage]);
+        ctx.replyWithVoice({
+          source: voice
+        });
+      } catch (e) {
+        console.log(e.toString());
+      }
+    }
+  );
+}
+
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();
 
@@ -123,15 +180,8 @@ bot.on("text", async ctx => {
     if (debug) {
       console.log({ query }, { dominantLanguage });
     }
-    const data = await translate(query, "auto", targetLanguage);
+    const data = await translate(query, dominantLanguage, targetLanguage);
     ctx.reply(data);
-
-    if (featureFlags.botSpeech) {
-      const voice = await speech(data, "de-DE");
-      ctx.replyWithVoice({
-        source: voice
-      });
-    }
   } catch (e) {
     console.log(e.toString());
   }
@@ -140,10 +190,18 @@ bot.on("text", async ctx => {
 // bot.startPolling();
 
 module.exports.handler = (event, ctx, callback) => {
+  if (event.httpMethod === "GET") {
+    // For health checks
+    callback(null, {
+      statusCode: 200,
+      body: "OK"
+    });
+    return;
+  }
   const tmp = JSON.parse(event.body);
   bot.handleUpdate(tmp);
   callback(null, {
     statusCode: 200,
-    body: "Working"
+    body: "DONE"
   });
 };

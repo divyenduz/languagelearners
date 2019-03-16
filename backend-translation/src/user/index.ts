@@ -2,9 +2,6 @@ import { makeInlineQueryResultArticle } from "../message";
 
 const production = process.env.NODE_ENV === "production" ? true : false;
 
-const betaTesters = ["divyenduz", "nilanm", "rusrushal13", "yuvika01"];
-const knownUsers = production ? [...betaTesters] : [...betaTesters];
-
 export const addBotAccess = bot => {
   bot.use((ctx, next) => {
     if (ctx.inlineQuery && !isKnownUser(ctx.from.username)) {
@@ -16,7 +13,7 @@ export const addBotAccess = bot => {
             description: "https://languagelearners.club",
             message: userNotKnownErrorMessage(ctx.from.username)
           })
-        ]
+        ],
         {
           is_personal: true,
           cache_time: 0
@@ -38,15 +35,56 @@ export const addBotAccess = bot => {
       return;
     }
 
+    if (
+      ctx.message &&
+      ctx.message.from &&
+      ctx.message.chat &&
+      (ctx.message.chat.type === "group" ||
+        ctx.message.chat.type === "supergroup") &&
+      (!isKnownGroup(ctx.message.chat.title) ||
+        !isKnownUser(ctx.message.from.username))
+    ) {
+      if (!isKnownUser(ctx.message.from.username)) {
+        console.log(`unknown user: ${ctx.message.from.username}`);
+      }
+      if (!isKnownGroup(ctx.message.chat.title)) {
+        console.log(`unknown group: ${ctx.message.chat.title}`);
+      }
+      return;
+    }
+
     // Bot echoes in group for everyone.
     next();
   });
 };
 
 const isKnownUser = userName => {
+  const developmentUsers = [
+    "divyenduz",
+    "nilanm",
+    "rusrushal13",
+    "yuvika01",
+    "Lukastrong5",
+    "wilbertliu"
+  ];
+  const productionUsers = []; // TODO: Fill this dynamically once payment workflow is done
+  const knownUsers = production
+    ? [...productionUsers, ...developmentUsers]
+    : [...developmentUsers];
   const index = knownUsers.indexOf(userName);
   return index > -1;
 };
+
+const isKnownGroup = groupName => {
+  const developmentGroups = ["Development - Language Learners Club"];
+  const productionGroups = ["German - Language Learners Club"];
+  const knownGroups = production
+    ? [...productionGroups]
+    : [...developmentGroups];
+  const index = knownGroups.indexOf(groupName);
+  return index > -1;
+};
+
 const userNotKnownErrorMessage = userName => {
   const joinLink = "https://languagelearners.club";
   return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
