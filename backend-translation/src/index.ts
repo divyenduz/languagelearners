@@ -108,7 +108,8 @@ bot.on("inline_query", async ctx => {
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
         buffer: voice,
-        folder: `polly`
+        folder: `polly`,
+        type: `audio/ogg`
       });
 
       result = [
