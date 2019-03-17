@@ -19,7 +19,6 @@ export const speech = async (sourceText, languageCode = "de-DE") => {
     if (!data || !(data.AudioStream instanceof Buffer)) {
       throw new Error("Failed to synthesize");
     }
-    // fs.writeFileSync("voice.mp3", data.AudioStream);
     return data.AudioStream;
   } catch (e) {
     throw new Error(`Failed to synthesize: ${e.toString()}`);

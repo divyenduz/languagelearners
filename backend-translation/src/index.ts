@@ -111,7 +111,9 @@ bot.on("inline_query", async ctx => {
         folder: `polly`,
         type: `audio/ogg`
       });
-
+      if (debug) {
+        console.log({ fileUrl });
+      }
       result = [
         ...result,
         ...[
@@ -165,9 +167,16 @@ if (featureFlags.command.botSpeech) {
           ? await translate(query, dominantLanguage, useLanguage)
           : query;
         const voice = await speech(data, languageMap[useLanguage]);
-        ctx.replyWithVoice({
-          source: voice
+        const fileUrl = await upload({
+          name: `${uuidv4()}.ogg`,
+          buffer: voice,
+          folder: `polly`,
+          type: `audio/ogg`
         });
+        if (debug) {
+          console.log({ fileUrl });
+        }
+        ctx.replyWithVoice(fileUrl);
       } catch (e) {
         console.log(e.toString());
       }

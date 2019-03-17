@@ -13,7 +13,7 @@
     "mixpanel": "^0.10.1",
     "node-fetch": "^2.3.0",
     "request": "^2.88.0",
-    "telegraf": "^3.20.0",
+    "telegraf": "^3.27.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
