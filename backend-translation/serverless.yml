@@ -38,4 +38,4 @@ functions:
       BOT_TOKEN: ${env:BOT_TOKEN}
       IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
       MIXPANEL_TOKEN: ${env:MIXPANEL_TOKEN}
-    timeout: 3
+    timeout: 10 
