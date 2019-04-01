@@ -1,0 +1,22 @@
+type User {
+  id: UUID! @id
+  telegramId: String!
+  email: String!
+  sourceLanguage: String! @default(value: "auto")
+  targetLanguage: String @default(value: "de")
+  plan: UserPlan
+  payments: [Payment!]
+}
+
+type Payment {
+  id: UUID! @id
+  user: User!
+  amount: Float!
+  date: DateTime!
+}
+
+enum UserPlan {
+  EARLY_ADOPTER
+  PREMIUM
+  UNPAID
+}
