@@ -22,17 +22,16 @@ resource "aws_instance" "instance_1" {
   provisioner "remote-exec" {
     connection {
       type        = "ssh"
-      user        = "ubuntu"
+      user        = "ec2-user"
       private_key = "${file("${var.key_path}")}"
     }
 
     inline = [
-      #   "sudo yum update -y",
-      #   "sudo yum install mysql -y",
+      "sudo yum update -y",
+      "sudo yum install mysql -y",
       "curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash",
-
-      "nvm install v10.4.0",
-      "npm install -g prisma",
+      "/home/ec2-user/.nvm/nvm install v10.4.0",
+      "/home/ec2-user/.nvm/nvm install -g prisma",
     ]
   }
 }
