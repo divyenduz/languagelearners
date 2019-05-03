@@ -87,5 +87,5 @@ const isKnownGroup = groupName => {
 
 const userNotKnownErrorMessage = userName => {
   const joinLink = "https://languagelearners.club";
-  return `User ${userName} is not indentified. You need to join ${joinLink} before using LingoParrot.`;
+  return `User ${userName} is not identified. You need to join ${joinLink} before using LingoParrot.`;
 };
