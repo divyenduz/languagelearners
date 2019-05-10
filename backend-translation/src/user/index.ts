@@ -41,7 +41,7 @@ export const addBotAccess = bot => {
       ctx.message.chat &&
       (ctx.message.chat.type === "group" ||
         ctx.message.chat.type === "supergroup") &&
-      (!isKnownGroup(ctx.message.chat.title)
+      !isKnownGroup(ctx.message.chat.title)
     ) {
       if (!isKnownGroup(ctx.message.chat.title)) {
         console.log(`unknown group: ${ctx.message.chat.title}`);
