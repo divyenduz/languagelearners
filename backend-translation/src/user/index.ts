@@ -41,8 +41,7 @@ export const addBotAccess = bot => {
       ctx.message.chat &&
       (ctx.message.chat.type === "group" ||
         ctx.message.chat.type === "supergroup") &&
-      (!isKnownGroup(ctx.message.chat.title) ||
-        !isKnownUser(ctx.message.from.username))
+      (!isKnownGroup(ctx.message.chat.title)
     ) {
       if (!isKnownGroup(ctx.message.chat.title)) {
         console.log(`unknown group: ${ctx.message.chat.title}`);
@@ -57,7 +56,6 @@ export const addBotAccess = bot => {
 
 const isKnownUser = userName => {
   const developmentUsers = [
-    "divyenduz",
     "nilanm",
     "rusrushal13",
     "yuvika01",
