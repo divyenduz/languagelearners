@@ -33,8 +33,8 @@ type User {
   plan: Plan!
   type: UserType! @default(value: USER)
   payment: [Payment]
-  telegram_id: String @unique # Telegram ID for this user
-  telegram_chat_id: String @unique # The ID for the chat between bot and this user
+  telegram_id: String @unique # Telegram ID for this user TODO: Convert to Int or Float?
+  telegram_chat_id: String @unique # The ID for the chat between bot and this user TODO: Convert to Int or Float?
 }
 
 type Payment {

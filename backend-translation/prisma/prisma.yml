@@ -1,3 +1,4 @@
+# TODO: Move stage to environment
 endpoint: https://api-prisma.divyendusingh.com/lingoparrot/dev
 datamodel: datamodel.prisma
 secret: secret

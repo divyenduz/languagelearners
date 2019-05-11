@@ -11,7 +11,7 @@ const debug = process.env.DEBUG || !production;
 
 export const addBotAccess = bot => {
   bot.use((ctx, next) => {
-    if (ctx.inlineQuery && !isKnownUser(ctx.from.username)) {
+    if (ctx.inlineQuery && !isKnownUser(ctx.from.id)) {
       console.log(`inlineQuery but unknown user`);
       ctx.answerInlineQuery(
         [
@@ -35,7 +35,7 @@ export const addBotAccess = bot => {
       ctx.message.from &&
       ctx.message.chat &&
       ctx.message.chat.type === "private" &&
-      !isKnownUser(ctx.message.from.username)
+      !isKnownUser(ctx.message.from.id)
     ) {
       console.log(`private chat but but unknown user`);
       ctx.reply(userNotKnownErrorMessage(ctx.from.username));
@@ -63,7 +63,7 @@ export const addBotAccess = bot => {
 
 export const isAdmin = async userId => {
   const user = await prisma.user({
-    telegram_id: userId
+    telegram_id: userId.toString()
   });
   if (user && user.type === "ADMIN") {
     return true;
@@ -74,7 +74,7 @@ export const isAdmin = async userId => {
 
 const isKnownUser = async userId => {
   const user = await prisma.user({
-    telegram_id: userId
+    telegram_id: userId.toString()
   });
   if (user && user.plan !== "PAST") {
     return true;

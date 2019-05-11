@@ -178,7 +178,7 @@ if (featureFlags.command.botSpeech) {
 }
 
 bot.command("adduser", async ctx => {
-  if (isAdmin(ctx.from.username)) {
+  if (await isAdmin(ctx.from.id)) {
     const query = ctx.message.text.replace("/adduser", "").trim();
     const existingUser = await prisma.user({
       email: query
@@ -241,7 +241,7 @@ bot.command("adduser", async ctx => {
   }
 });
 bot.command("removeuser", async ctx => {
-  if (isAdmin(ctx.from.username)) {
+  if (await isAdmin(ctx.from.id)) {
     const query = ctx.message.text.replace("/removeuser", "").trim();
     const existingUser = await prisma.user({
       email: query
@@ -266,13 +266,32 @@ bot.command("removeuser", async ctx => {
   }
 });
 bot.command("listusers", async ctx => {
-  if (isAdmin(ctx.from.username)) {
+  if (await isAdmin(ctx.from.id)) {
     const users = await prisma.users();
     ctx.reply(
-      JSON.stringify(
-        users.filter(user => user.plan !== "PAST").map(user => user.email)
-      )
+      users
+        .map(user => {
+          return `
+Email: ${user.email}
+Chat ID: ${user.telegram_chat_id}
+Plan: ${user.plan}
+Type: ${user.type}
+          `;
+        })
+        .join("--------------\n")
     );
+  } else {
+    console.log(`Admin command from non-admin user ${ctx.from.username}`);
+  }
+});
+bot.command("broadcast", async ctx => {
+  console.log({ admin: await isAdmin(ctx.from.id) });
+  if (await isAdmin(ctx.from.id)) {
+    const query = ctx.message.text.replace("/broadcast", "").trim();
+    const users = await prisma.users();
+    users.filter(user => user.telegram_chat_id).forEach(user => {
+      ctx.telegram.sendMessage(user.telegram_chat_id, query);
+    });
   } else {
     console.log(`Admin command from non-admin user ${ctx.from.username}`);
   }

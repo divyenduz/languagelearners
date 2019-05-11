@@ -49,6 +49,11 @@ export const addBotManners = bot => {
     const existingUser = prisma.user({
       id
     });
+
+    if (debug) {
+      console.log({ message: ctx.message });
+    }
+
     if (!existingUser) {
       ctx.reply(`User with id ${id} does not exist`);
     } else {
