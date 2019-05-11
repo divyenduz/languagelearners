@@ -49,6 +49,8 @@ const featureFlags = {
     botSpeech: false,
     botTranscribe: false
   },
+  // TODO: Move commands to separate code namespace!
+  // Not all commands belong to this one file
   command: {
     botSpeech: true,
     botTranscribe: false
@@ -86,6 +88,7 @@ if (featureFlags.echo.botTranscribe) {
   });
 }
 
+// TODO:  Move events to separate files for better code readability i.e. less code
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
 
@@ -294,6 +297,28 @@ bot.command("broadcast", async ctx => {
     });
   } else {
     console.log(`Admin command from non-admin user ${ctx.from.username}`);
+  }
+});
+
+bot.on("edited_message", async ctx => {
+  const query = ctx.editedMessage.text.trim();
+  try {
+    const dominantLanguage = await comprehend(query);
+    const targetLanguage = dominantLanguage === "de" ? "en" : "de";
+    if (debug) {
+      console.log({ query }, { dominantLanguage });
+    }
+    const data = await translate(query, dominantLanguage, targetLanguage);
+
+    ctx.telegram.editMessageText(
+      ctx.editedMessage.chat.id,
+      // This will only work if bot's message is next of user message
+      ctx.editedMessage.message_id + 1,
+      ``, // Inline message ID. Fill it later.
+      data
+    );
+  } catch (e) {
+    console.log(e.toString());
   }
 });
 

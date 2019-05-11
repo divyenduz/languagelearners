@@ -12,14 +12,20 @@ export const addBotManners = bot => {
   bot.use((ctx, next) => {
     // TODO: Unify logging in its own middleware.
     const from =
-      (ctx.message && ctx.message.from && ctx.message.from) ||
-      (ctx.inlineQuery && ctx.inlineQuery.from && ctx.inlineQuery.from);
+      (ctx.message && ctx.message.from) ||
+      (ctx.inlineQuery && ctx.inlineQuery.from && ctx.inlineQuery.from) ||
+      (ctx.editedMessage && ctx.editedMessage.from);
+
     const query =
       (ctx.message && ctx.message.text.trim()) ||
-      (ctx.inlineQuery && ctx.inlineQuery.query.trim());
-    console.log(`${ctx.updateType} - ${query} from user ${from.username}`);
+      (ctx.inlineQuery && ctx.inlineQuery.query.trim()) ||
+      (ctx.editedMessage && ctx.editedMessage.text.trim());
 
-    if (ctx.mixpanel) {
+    console.log(
+      `${ctx.updateType} - ${query} from user ${from && from.username}`
+    );
+
+    if (ctx.mixpanel && from) {
       const mixpanel: Mixpanel = ctx.mixpanel;
       if (debug) {
         console.log(`metrics - tracking user stats for user: ${from.username}`);
