@@ -1,0 +1,45 @@
+enum SourceLanguage {
+  AUTO
+  EN
+  DE
+  ES
+}
+
+enum TargetLanguage {
+  EN
+  DE
+  ES
+}
+
+enum Plan {
+  PAST # Was a user in past but does not exist now
+  GUEST # Free as a friend, we do this for feedback
+  INTRO_5 # People who were onboarded on introductory price of $5/month
+  PLAN_9 # The original $9 plan
+  YEARLY_100 # $100/year as discount
+  LIFETIME_199 # $199 and LLC is yours for life
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+type User {
+  id: ID! @id
+  email: String! @unique
+  source_language: SourceLanguage! @default(value: AUTO)
+  target_language: TargetLanguage! @default(value: DE)
+  plan: Plan!
+  type: UserType! @default(value: USER)
+  payment: [Payment]
+  telegram_id: String @unique # Telegram ID for this user
+  telegram_chat_id: String @unique # The ID for the chat between bot and this user
+}
+
+type Payment {
+  id: ID! @id
+  date: DateTime!
+  amount: Float!
+  user: User!
+}

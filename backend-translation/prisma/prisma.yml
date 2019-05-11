@@ -1,0 +1,10 @@
+endpoint: https://api-prisma.divyendusingh.com/lingoparrot/dev
+datamodel: datamodel.prisma
+secret: secret
+
+generate: 
+  - generator: typescript-client
+    output: '../src/generated/prisma-client'
+
+seed: 
+  run: ts-node ./data/seed.ts

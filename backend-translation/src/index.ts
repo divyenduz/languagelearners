@@ -1,9 +1,10 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
 import * as Mixpanel from "mixpanel";
+import { prisma } from "./generated/prisma-client";
 
 // import { transcribe } from "./future/transcribe";
-import { addBotAccess } from "./user";
+import { addBotAccess, isAdmin, inviteUserViaEmail } from "./user";
 import {
   makeInlineQueryResultArticle,
   makeInlineQueryResultVoice,
@@ -16,7 +17,8 @@ import {
   speech,
   upload,
   comprehend,
-  moveTelegramFileToS3
+  moveTelegramFileToS3,
+  sendMail
 } from "./wrapper";
 import { transcribe } from "./future/transcribe";
 
@@ -174,6 +176,107 @@ if (featureFlags.command.botSpeech) {
     }
   );
 }
+
+bot.command("adduser", async ctx => {
+  if (isAdmin(ctx.from.username)) {
+    const query = ctx.message.text.replace("/adduser", "").trim();
+    const existingUser = await prisma.user({
+      email: query
+    });
+    if (existingUser) {
+      if (existingUser.plan !== "PAST") {
+        ctx.reply(
+          `User with email ${existingUser.email}, already exists with plan ${
+            existingUser.plan
+          }`
+        );
+      } else {
+        const user = await prisma.updateUser({
+          where: {
+            email: query
+          },
+          data: {
+            plan: "GUEST",
+            source_language: "AUTO",
+            target_language: "DE"
+          }
+        });
+        const invitationLink = `https://telegram.me/LingoParrot${
+          production ? "" : "Dev"
+        }Bot?start=${user.id}`;
+
+        inviteUserViaEmail({
+          email: query,
+          invitationLink
+        });
+
+        ctx.reply(
+          `Invitation link ${invitationLink} sent to user's email address ${query}`
+        );
+      }
+    } else {
+      // TODO: Simply repeated code from this if/else block
+      const user = await prisma.createUser({
+        email: query,
+        plan: "GUEST",
+        source_language: "AUTO",
+        target_language: "DE"
+      });
+
+      const invitationLink = `https://telegram.me/LingoParrot${
+        production ? "" : "Dev"
+      }Bot?start=${user.id}`;
+
+      inviteUserViaEmail({
+        email: query,
+        invitationLink
+      });
+
+      ctx.reply(
+        `Invitation link ${invitationLink} sent to user's email address ${query}`
+      );
+    }
+  } else {
+    console.log(`Admin command from non-admin user ${ctx.from.username}`);
+  }
+});
+bot.command("removeuser", async ctx => {
+  if (isAdmin(ctx.from.username)) {
+    const query = ctx.message.text.replace("/removeuser", "").trim();
+    const existingUser = await prisma.user({
+      email: query
+    });
+    if (!existingUser) {
+      ctx.reply(`User with email id ${query}, does not exists`);
+    } else if (existingUser.plan === "PAST") {
+      ctx.reply(`User with email id ${query}, is already in PAST plan`);
+    } else {
+      const user = await prisma.updateUser({
+        where: {
+          id: existingUser.id
+        },
+        data: {
+          plan: "PAST"
+        }
+      });
+      ctx.reply(`User with email ${user.email} moved to plan PAST`);
+    }
+  } else {
+    console.log(`Admin command from non-admin user ${ctx.from.username}`);
+  }
+});
+bot.command("listusers", async ctx => {
+  if (isAdmin(ctx.from.username)) {
+    const users = await prisma.users();
+    ctx.reply(
+      JSON.stringify(
+        users.filter(user => user.plan !== "PAST").map(user => user.email)
+      )
+    );
+  } else {
+    console.log(`Admin command from non-admin user ${ctx.from.username}`);
+  }
+});
 
 bot.on("text", async ctx => {
   const query = ctx.message.text.trim();

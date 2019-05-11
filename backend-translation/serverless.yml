@@ -30,6 +30,15 @@ functions:
       - http:
           path: /
           method: get
+  payment:
+    handler: dist/payment.handler
+    events:
+      - http:
+          path: /payment
+          method: post
+      - http:
+          path: /payment
+          method: get
     memorySize: 128
     environment: 
       NODE_ENV: ${env:NODE_ENV}

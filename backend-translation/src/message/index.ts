@@ -1,4 +1,5 @@
 import { Mixpanel } from "mixpanel";
+import { prisma } from "../generated/prisma-client";
 
 const uuidv4 = require("uuid/v4");
 
@@ -42,9 +43,29 @@ export const addBotManners = bot => {
     });
   });
 
-  bot.start(ctx =>
-    ctx.reply("Welcome to LingoParrot from LanguageLearners.club")
-  );
+  bot.start(async ctx => {
+    const text = ctx.message.text;
+    const id = text.replace("/start", "").trim();
+    const existingUser = prisma.user({
+      id
+    });
+    if (!existingUser) {
+      ctx.reply(`User with id ${id} does not exist`);
+    } else {
+      const user = await prisma.updateUser({
+        where: {
+          id
+        },
+        data: {
+          telegram_id: ctx.message.from.id.toString(),
+          telegram_chat_id: ctx.message.chat.id.toString()
+        }
+      });
+      ctx.reply(
+        `Welcome ${user.email} to LingoParrot from LanguageLearners.club`
+      );
+    }
+  });
   bot.help(ctx =>
     ctx.reply(
       "I will help you learn a new language by echoing you in that language. Simple right."

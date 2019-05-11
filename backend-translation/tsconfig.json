@@ -7,7 +7,7 @@
     "removeComments": false,
     "outDir": "dist",
     "sourceMap": true,
-    "lib": ["esnext.asynciterable", "es2015"]
+    "lib": ["esnext.asynciterable", "es2015", "dom"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]
