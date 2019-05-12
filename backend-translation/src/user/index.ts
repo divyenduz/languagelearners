@@ -104,17 +104,13 @@ const userNotKnownErrorMessage = userName => {
 export const inviteUserViaEmail = ({ email, invitationLink }) => {
   // TODO: Separate email bodies into a concept of "email templates".
   // They shouldn't be scattered all over the code. Maybe https://heml.io/
-  // TODO: The community link is German only, maybe it should open a link that has links to all communities
-  // TODO: This community link is not personalized i.e. user can share it with anyone
   sendMail({
     email,
     subject: `You have been invited to join Language Learners Club ✅`,
     body: `
           Please use this <a href='${invitationLink}'>link</a> to get started with LingoParrot. 
 
-          Please join the German community using this <a href='https://t.me/joinchat/DGq5gw15zpNHPDKMO6-c3A'>link</a>
-
-          P.S. This requires a telegram account. 
+          P.S. This requires a Telegram account. 
           `
   });
 };

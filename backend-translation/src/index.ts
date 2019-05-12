@@ -288,7 +288,6 @@ Type: ${user.type}
   }
 });
 bot.command("broadcast", async ctx => {
-  console.log({ admin: await isAdmin(ctx.from.id) });
   if (await isAdmin(ctx.from.id)) {
     const query = ctx.message.text.replace("/broadcast", "").trim();
     const users = await prisma.users();
@@ -297,28 +296,6 @@ bot.command("broadcast", async ctx => {
     });
   } else {
     console.log(`Admin command from non-admin user ${ctx.from.username}`);
-  }
-});
-
-bot.on("edited_message", async ctx => {
-  const query = ctx.editedMessage.text.trim();
-  try {
-    const dominantLanguage = await comprehend(query);
-    const targetLanguage = dominantLanguage === "de" ? "en" : "de";
-    if (debug) {
-      console.log({ query }, { dominantLanguage });
-    }
-    const data = await translate(query, dominantLanguage, targetLanguage);
-
-    ctx.telegram.editMessageText(
-      ctx.editedMessage.chat.id,
-      // This will only work if bot's message is next of user message
-      ctx.editedMessage.message_id + 1,
-      ``, // Inline message ID. Fill it later.
-      data
-    );
-  } catch (e) {
-    console.log(e.toString());
   }
 });
 
