@@ -8,3 +8,4 @@ iopipe_handlers/
 dist/
 
 .DS_Store
+coverage/
