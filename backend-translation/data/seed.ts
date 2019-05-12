@@ -1,9 +1,5 @@
 import { prisma } from "../src/generated/prisma-client";
-
-// TODO: Unify environment with middleware.
-console.log(`Environment ${process.env.NODE_ENV}`);
-const production = process.env.NODE_ENV === "production" ? true : false;
-const debug = process.env.DEBUG || !production;
+import { PRODUCTION } from "../src/globals";
 
 async function run() {
   const user = await prisma.createUser({
@@ -15,7 +11,7 @@ async function run() {
   });
 
   const invitationLink = `https://telegram.me/LingoParrot${
-    production ? "" : "Dev"
+    PRODUCTION ? "" : "Dev"
   }Bot?start=${user.id}`;
 
   console.log(`Please join LLC using this link ${invitationLink}`);

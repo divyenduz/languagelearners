@@ -1,15 +1,11 @@
 import { mailAPI } from "../api";
-
-// TODO: Unify environment with middleware.
-console.log(`Environment ${process.env.NODE_ENV}`);
-const production = process.env.NODE_ENV === "production" ? true : false;
-const debug = process.env.DEBUG || !production;
+import { PRODUCTION, DEBUG } from "../globals";
 
 export const sendMail = ({ email, subject, body }) => {
-  if (!production && !debug) {
+  if (!PRODUCTION && !DEBUG) {
     return;
   } else {
-    if (debug) {
+    if (DEBUG) {
       console.log(`Sending email as debug mode is on.`);
       // Uncomment the return in this block to avoid sending emails when developing
       //   return;
