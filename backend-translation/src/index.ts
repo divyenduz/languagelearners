@@ -1,14 +1,9 @@
 import * as dotenv from "dotenv";
 import * as Telegraf from "telegraf";
-import * as Mixpanel from "mixpanel";
 
-// import { transcribe } from "./future/transcribe";
-import { addBotAccess } from "./user";
 import {
   makeInlineQueryResultArticle,
-  makeInlineQueryResultVoice,
-  addBotManners
-  // detectViaBotText
+  makeInlineQueryResultVoice
 } from "./message";
 
 import {
@@ -18,51 +13,53 @@ import {
   comprehend,
   moveTelegramFileToS3
 } from "./wrapper";
+import { FEATURE_FLAGS } from "./globals";
+
 import { transcribe } from "./future/transcribe";
+
+import {
+  mixpanelMiddleware,
+  environmentMiddleware,
+  accessMiddleware
+} from "./middlewares";
+
+import {
+  addStartCommand,
+  addHelpCommand,
+  addSpeakCommand,
+  addAddUserCommand,
+  addRemoveUserCommand,
+  addListUsersCommand,
+  addBroadcastCommand
+} from "./commands";
 
 dotenv.config();
 
-// TODO: Unify environment with middleware.
-console.log(`Environment ${process.env.NODE_ENV}`);
-const production = process.env.NODE_ENV === "production" ? true : false;
-const debug = process.env.DEBUG || !production;
-
 const uuidv4 = require("uuid/v4");
 const bot = new Telegraf(process.env.BOT_TOKEN);
-const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN);
-if (process.env.MIXPANEL_TOKEN) {
-  if (debug) {
-    console.log("using mixpanel");
-  }
-  bot.use((ctx, next) => {
-    ctx.mixpanel = mixpanel;
-    return next();
-  });
-}
-addBotManners(bot);
-addBotAccess(bot);
 
-const featureFlags = {
-  inline: {
-    botSpeech: false,
-    botTranscribe: false
-  },
-  command: {
-    botSpeech: true,
-    botTranscribe: false
-  },
-  echo: {
-    botSpeech: false,
-    botTranscribe: false
-  }
-};
+bot.use(environmentMiddleware);
+bot.use(mixpanelMiddleware);
 
+// Start command happens before access control
+addStartCommand(bot);
+
+bot.use(accessMiddleware);
+
+addHelpCommand(bot);
+addAddUserCommand(bot);
+addRemoveUserCommand(bot);
+addListUsersCommand(bot);
+addBroadcastCommand(bot);
+
+// TODO: Other languages are coming
+// TODO: Unify language maps
 const languageMap = {
   en: "en-US",
   de: "de-DE"
 };
 
-if (featureFlags.echo.botTranscribe) {
+if (FEATURE_FLAGS.echo.botTranscribe) {
   bot.on("voice", async ctx => {
     const query = ctx.message.voice;
     console.log(`Voice ${query.file_id} from ${ctx.from.username}`);
@@ -73,7 +70,7 @@ if (featureFlags.echo.botTranscribe) {
       const voiceFileS3Url =
         hardcodedFileUrl ||
         (await moveTelegramFileToS3(query, `${jobName}.ogg`));
-      if (debug) {
+      if (ctx.environment.debug) {
         console.log({ voiceFileS3Url });
       }
       const transcription = await transcribe(jobName, voiceFileS3Url);
@@ -84,13 +81,14 @@ if (featureFlags.echo.botTranscribe) {
   });
 }
 
+// TODO:  Move events to separate files for better code readability i.e. less code
 bot.on("inline_query", async ctx => {
   const query = ctx.inlineQuery.query.trim();
 
   try {
     const dominantLanguage = await comprehend(query);
     const targetLanguage = dominantLanguage === "de" ? "en" : "de";
-    if (debug) {
+    if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage });
     }
     const data = await translate(query, dominantLanguage, targetLanguage);
@@ -103,7 +101,7 @@ bot.on("inline_query", async ctx => {
         message: `${data} (${query})`
       })
     ];
-    if (featureFlags.inline.botSpeech) {
+    if (ctx.FEATURE_FLAGS.inline.botSpeech) {
       const voice = await speech(data, languageMap[targetLanguage]);
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
@@ -133,46 +131,8 @@ bot.on("inline_query", async ctx => {
   }
 });
 
-if (featureFlags.command.botSpeech) {
-  bot.command(
-    [
-      "speak",
-      `speak@LingoParrot${production ? "" : "Dev"}Bot`,
-      "speakt",
-      `speakt@LingoParrot${production ? "" : "Dev"}Bot`
-    ],
-    async ctx => {
-      const useTranslation =
-        (ctx.message.text as string).indexOf("speakt") > -1 ? true : false;
-      const query = ctx.message.text
-        .replace(`@LingoParrot${production ? "" : "Dev"}Bot`, "")
-        .replace("/speakt", "")
-        .replace("/speak", "")
-        .trim();
-      try {
-        const dominantLanguage = await comprehend(query);
-        const targetLanguage = dominantLanguage === "de" ? "en" : "de";
-        const useLanguage = useTranslation ? targetLanguage : dominantLanguage;
-        if (debug) {
-          console.log(
-            { query },
-            { dominantLanguage },
-            { targetLanguage },
-            { useLanguage }
-          );
-        }
-        const data = useTranslation
-          ? await translate(query, dominantLanguage, useLanguage)
-          : query;
-        const voice = await speech(data, languageMap[useLanguage]);
-        ctx.replyWithVoice({
-          source: voice
-        });
-      } catch (e) {
-        console.log(e.toString());
-      }
-    }
-  );
+if (FEATURE_FLAGS.command.botSpeech) {
+  addSpeakCommand(bot);
 }
 
 bot.on("text", async ctx => {
@@ -181,7 +141,7 @@ bot.on("text", async ctx => {
   try {
     const dominantLanguage = await comprehend(query);
     const targetLanguage = dominantLanguage === "de" ? "en" : "de";
-    if (debug) {
+    if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage });
     }
     const data = await translate(query, dominantLanguage, targetLanguage);
@@ -190,8 +150,6 @@ bot.on("text", async ctx => {
     console.log(e.toString());
   }
 });
-
-// bot.startPolling();
 
 module.exports.handler = (event, ctx, callback) => {
   if (event.httpMethod === "GET") {
@@ -202,10 +160,9 @@ module.exports.handler = (event, ctx, callback) => {
     });
     return;
   }
-  const tmp = JSON.parse(event.body);
-  bot.handleUpdate(tmp);
+  bot.handleUpdate(JSON.parse(event.body));
   callback(null, {
     statusCode: 200,
-    body: "DONE"
+    body: "OK"
   });
 };

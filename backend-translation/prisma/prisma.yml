@@ -1,0 +1,11 @@
+# TODO: Move stage to environment
+endpoint: https://api-prisma.divyendusingh.com/lingoparrot/${env:PRISMA_SERVICE_STAGE}
+datamodel: datamodel.prisma
+secret: '{env:PRISMA_SERVICE_SECRET}'
+
+generate: 
+  - generator: typescript-client
+    output: '../src/generated/prisma-client'
+
+seed: 
+  run: ts-node ./data/seed.ts
