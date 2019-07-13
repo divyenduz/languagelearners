@@ -21,12 +21,15 @@ Copy `.env_sample` file to `.env` (and `.env.production` for a production setup 
 
 Run the following commands to start receiving `@<bot-name>` requests on your local machine.
 
-1.  `yarn run start` - to run the project locally (via `sls offline start`, supports hot realoading ).
-2.  `yarn run watch` - to watch and compile TS to JS.
-3.  `yarn run tunnel` - to create a tunnel from local to the internet, copy the url from this step.
-4.  `yarn run set-webhook <url-from-step-3>` - to point the bot to local development version (uses `.env`).
+1.  `yarn dev`
 
-Generally, i have two versions of the bot i.e. development and production. I point my dev bot to my local setup using the above steps.
+* runs the project locally (via `sls offline start`, supports hot realoading).
+* creates a tunnel (languagelearnersclub.localtunnel.me) from local to the internet.
+* points the bot to local development version (uses `.env` and localtunnel url).
+
+2.  `yarn run watch` - to watch and compile TS to JS.
+
+Generally, I have two versions of the bot i.e. development and production. I point my dev bot to my local setup using the above steps.
 
 ---
 
