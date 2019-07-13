@@ -27,12 +27,11 @@ export const addStartCommand = bot => {
 
       // TODO: The community link is German only, maybe it should open a link that has links to all communities
       // TODO: This community link is not personalized i.e. user can share it with anyone
-      ctx.reply(
-        `Welcome ${user.email} to LingoParrot from LanguageLearners.club
+      ctx.replyWithHTML(`Welcome ${
+        user.email
+      } to LingoParrot from LanguageLearners.club
             
-            Please join the German community using this <a href='https://t.me/joinchat/DGq5gw15zpNHPDKMO6-c3A'>link</a>
-            `
-      );
+Please join the German community using this <a href='https://t.me/joinchat/DGq5gw15zpNHPDKMO6-c3A'>link</a>`);
     }
   });
 };

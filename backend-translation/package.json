@@ -57,6 +57,6 @@
     "get-bot-production": "ts-node ./scripts/get-bot.ts --production",
     "deploy": "prisma deploy && sls deploy && yarn set-webhook",
     "deploy-production":
-      "prisma deploy && NODE_ENV=production sls deploy --stage production"
+      "prisma deploy -e .env.production && NODE_ENV=production sls deploy --stage production"
   }
 }

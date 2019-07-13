@@ -40,9 +40,12 @@ const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.use(environmentMiddleware);
 bot.use(mixpanelMiddleware);
+
+// Start command happens before access control
+addStartCommand(bot);
+
 bot.use(accessMiddleware);
 
-addStartCommand(bot);
 addHelpCommand(bot);
 addAddUserCommand(bot);
 addRemoveUserCommand(bot);
