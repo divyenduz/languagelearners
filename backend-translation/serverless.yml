@@ -1,11 +1,12 @@
 service: backend-translation
 
-frameworkVersion: "=1.36.3"
+frameworkVersion: "=1.42.3"
 
 plugins:
   - serverless-dotenv-plugin
-  - serverless-offline
   - serverless-plugin-iopipe
+  - serverless-offline
+  - serverless-localtunnel
 
 provider:
   name: aws
@@ -40,11 +41,9 @@ functions:
           path: /payment
           method: get
     memorySize: 128
-    environment: 
-      NODE_ENV: ${env:NODE_ENV}
-      DEBUG: ${env:DEBUG}
-      BACKEND_URL: ${env:BACKEND_URL}
-      BOT_TOKEN: ${env:BOT_TOKEN}
-      IOPIPE_TOKEN: ${env:IOPIPE_TOKEN}
-      MIXPANEL_TOKEN: ${env:MIXPANEL_TOKEN}
-    timeout: 10 
+    timeout: 10
+
+custom:
+  localtunnel:
+    subdomain: languagelearnersclub
+    port: 3000

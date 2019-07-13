@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@iopipe/iopipe": "1.12.9",
+    "@iopipe/iopipe": "1.15.0",
     "@sendgrid/mail": "^6.4.0",
     "@types/graphql": "^14.2.0",
     "arg": "^4.1.0",
@@ -30,8 +30,9 @@
     "localtunnel": "^1.9.1",
     "node-env-run": "^3.0.2",
     "prettier": "^1.12.1",
-    "serverless": "1.36.3",
+    "serverless": "1.42.3",
     "serverless-dotenv-plugin": "^2.0.1",
+    "serverless-localtunnel": "^0.0.16",
     "serverless-offline": "^3.31.3",
     "serverless-plugin-iopipe": "^1.6.2",
     "serverless-plugin-tracing": "^2.0.0",
@@ -40,8 +41,9 @@
     "typescript": "^3.2.4"
   },
   "scripts": {
-    "dev": "sls offline",
-    "start": "yarn dev",
+    "offline": "sls offline",
+    "dev": "yarn offline",
+    "start": "yarn offline",
     "test": "jest",
     "tunnel": "lt --port 3000",
     "build": "tsc",
