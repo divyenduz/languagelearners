@@ -5,6 +5,7 @@ frameworkVersion: "=1.42.3"
 plugins:
   - serverless-dotenv-plugin
   - serverless-plugin-iopipe
+  # - serverless-plugin-typescript
   - serverless-offline
   - serverless-localtunnel
 
