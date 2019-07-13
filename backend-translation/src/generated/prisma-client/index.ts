@@ -962,7 +962,9 @@ export const models: Model[] = [
 export const Prisma = makePrismaClientClass<ClientConstructor<Prisma>>({
   typeDefs,
   models,
-  endpoint: `https://api-prisma.divyendusingh.com/lingoparrot/dev`,
-  secret: `secret`
+  endpoint: `https://api-prisma.divyendusingh.com/lingoparrot/${
+    process.env["PRISMA_SERVICE_STAGE"]
+  }`,
+  secret: `{env:PRISMA_SERVICE_SECRET}`
 });
 export const prisma = new Prisma();
