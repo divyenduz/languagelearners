@@ -1,8 +1,8 @@
 import { makeInlineQueryResultArticle } from "../message";
 import { isKnownUser, userNotKnownErrorMessage, isKnownGroup } from "../user";
 
-export const accessMiddleware = (ctx, next) => {
-  if (ctx.inlineQuery && !isKnownUser(ctx.from.id)) {
+export const accessMiddleware = async (ctx, next) => {
+  if (ctx.inlineQuery && !(await isKnownUser(ctx.from.id))) {
     console.log(`inlineQuery but unknown user`);
     ctx.answerInlineQuery(
       [
@@ -26,7 +26,7 @@ export const accessMiddleware = (ctx, next) => {
     ctx.message.from &&
     ctx.message.chat &&
     ctx.message.chat.type === "private" &&
-    !isKnownUser(ctx.message.from.id)
+    !(await isKnownUser(ctx.message.from.id))
   ) {
     console.log(`private chat but but unknown user`);
     ctx.reply(userNotKnownErrorMessage(ctx.from.username));

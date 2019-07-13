@@ -44,7 +44,8 @@
   },
   "scripts": {
     "offline": "sls offline",
-    "dev": "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
+    "dev":
+      "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
     "start": "yarn offline",
     "test": "jest",
     "tunnel": "lt --port 3000",
@@ -55,6 +56,7 @@
     "get-bot": "ts-node ./scripts/get-bot.ts",
     "get-bot-production": "ts-node ./scripts/get-bot.ts --production",
     "deploy": "prisma deploy && sls deploy && yarn set-webhook",
-    "deploy-production": "prisma deploy && NODE_ENV=production sls deploy --stage production"
+    "deploy-production":
+      "prisma deploy && NODE_ENV=production sls deploy --stage production"
   }
 }
