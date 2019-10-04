@@ -1,4 +1,4 @@
-import * as AWS from "aws-sdk";
+import  AWS from "aws-sdk";
 
 export const storageAPI = new AWS.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,

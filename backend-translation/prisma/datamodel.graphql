@@ -27,19 +27,38 @@ enum UserType {
 
 type User {
   id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
   email: String! @unique
   source_language: SourceLanguage! @default(value: AUTO)
   target_language: TargetLanguage! @default(value: DE)
   plan: Plan!
   type: UserType! @default(value: USER)
   payment: [Payment]
-  telegram_id: String @unique # Telegram ID for this user TODO: Convert to Int or Float?
-  telegram_chat_id: String @unique # The ID for the chat between bot and this user TODO: Convert to Int or Float?
+  telegram_id: String @unique
+  telegram_chat_id: String @unique
 }
 
 type Payment {
   id: ID! @id
-  date: DateTime!
-  amount: Float!
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  provider_subscription_id: String!
+  provider_payment_id: String! @unique
+  amount: Int!
   user: User!
+}
+
+enum TelemetryType {
+  PROVIDER_PAYMENT_EVENT
+}
+
+type Telemetry {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  type: TelemetryType!
+  telemetry_key: String!
+  filename: String!
+  payload: Json!
 }

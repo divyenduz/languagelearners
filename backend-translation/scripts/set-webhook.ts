@@ -1,47 +1,47 @@
-import * as dotenv from "dotenv";
-import * as arg from "arg";
-import * as FormData from "form-data";
+import dotenv from 'dotenv'
+import arg from 'arg'
+import FormData from 'form-data'
 
-const fetch = require("node-fetch");
+const fetch = require('node-fetch')
 
 const args = arg({
-  "--production": Boolean,
-  "-p": "--production"
-});
+  '--production': Boolean,
+  '-p': '--production',
+})
 
-const production = args["--production"];
+const production = args['--production']
 
 dotenv.config({
-  path: production ? ".env.production" : ".env"
-});
+  path: production ? '.env.production' : '.env',
+})
 
-console.log(`Environment ${process.env.NODE_ENV}`);
-let url = process.env.BACKEND_URL;
+console.log(`Environment ${process.env.NODE_ENV}`)
+let url = process.env.BACKEND_URL
 
 if (args._.length == 1) {
-  url = args._[0];
+  url = args._[0]
 }
 
 if (!process.env.BOT_TOKEN) {
-  console.error("Invalid .env, please set BOT_TOKEN");
-  process.exit(1);
+  console.error('Invalid .env, please set BOT_TOKEN')
+  process.exit(1)
 }
 
-const body = new FormData();
-body.append("url", url);
+const body = new FormData()
+body.append('url', url)
 
 const telegramUrl = `https://api.telegram.org/bot${
   process.env.BOT_TOKEN
-}/setWebhook`;
+}/setWebhook`
 
-console.log(telegramUrl, url);
+console.log(telegramUrl, url)
 
 async function main() {
   const data = await fetch(telegramUrl, {
-    method: "POST",
-    body
-  });
-  console.log(data.status, await data.json());
+    method: 'POST',
+    body,
+  })
+  console.log(data.status, await data.json())
 }
 
-main();
+main()

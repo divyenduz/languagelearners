@@ -1,4 +1,4 @@
-import * as AWS from "aws-sdk";
+import  AWS from "aws-sdk";
 
 export const comprehendAPI = new AWS.Comprehend({
   accessKeyId: process.env.ACCESS_KEY_ID,
