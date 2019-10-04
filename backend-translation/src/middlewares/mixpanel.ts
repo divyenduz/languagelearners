@@ -1,4 +1,4 @@
-import * as Mixpanel from "mixpanel";
+import  Mixpanel from "mixpanel";
 
 export const mixpanelMiddleware = (ctx, next) => {
   if (!process.env.MIXPANEL_TOKEN) {

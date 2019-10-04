@@ -1,4 +1,4 @@
-import * as AWS from "aws-sdk";
+import  AWS from "aws-sdk";
 const fetch = require("node-fetch");
 
 const sleep = waitTimeInMs =>

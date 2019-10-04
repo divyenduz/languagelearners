@@ -1,5 +1,5 @@
-import * as dotenv from 'dotenv'
-import * as Telegraf from 'telegraf'
+import dotenv from 'dotenv'
+import Telegraf from 'telegraf'
 
 import {
   makeInlineQueryResultArticle,

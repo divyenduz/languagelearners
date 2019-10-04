@@ -37,18 +37,18 @@
     "serverless-offline": "^3.31.3",
     "serverless-plugin-iopipe": "^1.6.2",
     "serverless-plugin-tracing": "^2.0.0",
-    "serverless-plugin-typescript": "^1.1.7",
+    "serverless-plugin-typescript": "^1.1.9",
     "ts-jest": "^23.10.5",
     "ts-node": "^8.0.1",
     "typescript": "^3.2.4"
   },
   "scripts": {
-    "offline": "sls offline",
+    "offline": "sls offline --watch",
     "dev":
       "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
     "start": "yarn offline",
     "test": "jest",
-    "tunnel": "lt --port 3000",
+    "tunnel": "lt --port 3000 --subdomain languagelearnersclub",
     "build": "tsc",
     "watch": "tsc -w",
     "set-webhook": "ts-node ./scripts/set-webhook.ts",
