@@ -1,20 +1,23 @@
-import { prisma } from "../src/generated/prisma-client";
-import { PRODUCTION } from "../src/globals";
+import dotenv from 'dotenv'
+dotenv.config()
+
+import { prisma } from '../src/generated/prisma-client'
+import { PRODUCTION } from '../src/globals'
 
 async function run() {
   const user = await prisma.createUser({
-    email: "divyendu.z@gmail.com",
-    type: "ADMIN",
-    plan: "GUEST",
-    telegram_id: "",
-    telegram_chat_id: ""
-  });
+    email: 'divyendu.z@gmail.com',
+    type: 'ADMIN',
+    plan: 'GUEST',
+    telegram_id: '',
+    telegram_chat_id: '',
+  })
 
   const invitationLink = `https://telegram.me/LingoParrot${
-    PRODUCTION ? "" : "Dev"
-  }Bot?start=${user.id}`;
+    PRODUCTION ? '' : 'Dev'
+  }Bot?start=${user.id}`
 
-  console.log(`Please join LLC using this link ${invitationLink}`);
+  console.log(`Please join LLC using this link ${invitationLink}`)
 }
 
-run();
+run()

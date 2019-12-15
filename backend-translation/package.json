@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "@iopipe/iopipe": "1.15.0",
+    "@iopipe/iopipe": "1.17.1",
     "@sendgrid/mail": "^6.4.0",
     "@types/graphql": "^14.2.0",
     "arg": "^4.1.0",
@@ -44,8 +44,7 @@
   },
   "scripts": {
     "offline": "sls offline --watch",
-    "dev":
-      "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
+    "dev": "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
     "start": "yarn offline",
     "test": "jest",
     "tunnel": "lt --port 3000 --subdomain languagelearnersclub",
@@ -56,7 +55,6 @@
     "get-bot": "ts-node ./scripts/get-bot.ts",
     "get-bot-production": "ts-node ./scripts/get-bot.ts --production",
     "deploy": "prisma deploy && sls deploy && yarn set-webhook",
-    "deploy-production":
-      "prisma deploy -e .env.production && NODE_ENV=production sls deploy --stage production"
+    "deploy-production": "prisma deploy -e .env.production && NODE_ENV=production sls deploy --stage production"
   }
 }
