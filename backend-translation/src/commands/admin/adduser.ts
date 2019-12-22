@@ -28,7 +28,7 @@ export const addAddUserCommand = bot => {
 
           const invitationLink = makeInvitationLink({
             id: user.id,
-            production: (ctx as any).environment.production,
+            production: (ctx).environment.production,
           })
 
           inviteUserViaEmail({
@@ -50,7 +50,7 @@ export const addAddUserCommand = bot => {
         })
 
         const invitationLink = `https://telegram.me/LingoParrot${
-          (ctx as any).environment.production ? '' : 'Dev'
+          (ctx).environment.production ? '' : 'Dev'
         }Bot?start=${user.id}`
 
         inviteUserViaEmail({

@@ -1,6 +1,6 @@
 console.log(`Environment ${process.env.NODE_ENV}`)
 export const PRODUCTION = process.env.NODE_ENV === 'production' ? true : false
-export const DEBUG = process.env.DEBUG || !PRODUCTION
+export const DEBUG = Boolean(process.env.DEBUG || !PRODUCTION)
 
 export const FEATURE_FLAGS = {
   inline: {

@@ -8,7 +8,7 @@ export const addStartCommand = bot => {
       id,
     })
 
-    if ((ctx as any).environment.debug) {
+    if ((ctx).environment.debug) {
       console.log({ message: ctx.message })
     }
 

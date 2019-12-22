@@ -1,5 +1,8 @@
 import { comprehend, translate, speech } from '../wrapper'
 import { PRODUCTION } from '../globals'
+import Telegraf from 'telegraf'
+import { ContextMessageUpdateDecorated } from '..'
+import os from 'os'
 
 // TODO: unify language maps
 const languageMap = {
@@ -7,7 +10,9 @@ const languageMap = {
   de: 'de-DE',
 }
 
-export const addSpeakCommand = bot => {
+export const addSpeakCommand = (
+  bot: Telegraf<ContextMessageUpdateDecorated>,
+) => {
   bot.command(
     [
       'speak',
@@ -16,11 +21,12 @@ export const addSpeakCommand = bot => {
       `speakt@LingoParrot${PRODUCTION ? '' : 'Dev'}Bot`,
     ],
     async ctx => {
+      const message = ctx.message || ctx.editedMessage
       const useTranslation =
-        (ctx.message.text as string).indexOf('speakt') > -1 ? true : false
-      const query = ctx.message.text
+        (message.text as string).indexOf('speakt') > -1 ? true : false
+      const query = message.text
         .replace(
-          `@LingoParrot${(ctx as any).environment.production ? '' : 'Dev'}Bot`,
+          `@LingoParrot${ctx.environment.production ? '' : 'Dev'}Bot`,
           '',
         )
         .replace('/speakt', '')
@@ -30,7 +36,7 @@ export const addSpeakCommand = bot => {
         const dominantLanguage = await comprehend(query)
         const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
         const useLanguage = useTranslation ? targetLanguage : dominantLanguage
-        if ((ctx as any).environment.debug) {
+        if (ctx.environment.debug) {
           console.log(
             { query },
             { dominantLanguage },
@@ -42,9 +48,21 @@ export const addSpeakCommand = bot => {
           ? await translate(query, dominantLanguage, useLanguage)
           : query
         const voice = await speech(data, languageMap[useLanguage])
-        ctx.replyWithVoice({
-          source: voice,
-        })
+        ctx.replyWithVoice(
+          {
+            source: voice,
+          },
+          {
+            reply_to_message_id: message.message_id,
+            caption: `Language ${useLanguage.toUpperCase()}${
+              useTranslation
+                ? `${
+                    os.EOL
+                  }Original message in language ${dominantLanguage.toUpperCase()} was ${query}`
+                : ''
+            }`,
+          },
+        )
       } catch (e) {
         console.log(e.toString())
       }

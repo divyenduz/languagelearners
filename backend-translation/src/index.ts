@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import Telegraf from 'telegraf'
+import Telegraf, { ContextMessageUpdate } from 'telegraf'
 
 import {
   makeInlineQueryResultArticle,
@@ -32,11 +32,23 @@ import {
   addListUsersCommand,
   addBroadcastCommand,
 } from './commands'
+import { Mixpanel } from 'mixpanel'
 
 dotenv.config()
 
 const uuidv4 = require('uuid/v4')
-const bot = new Telegraf(process.env.BOT_TOKEN)
+
+export type ContextMessageUpdateDecorated = ContextMessageUpdate & {
+  environment: {
+    production: boolean
+    debug: boolean
+  }
+  mixpanel?: Mixpanel
+}
+
+const bot: Telegraf<ContextMessageUpdateDecorated> = new Telegraf(
+  process.env.BOT_TOKEN,
+)
 
 bot.use(environmentMiddleware)
 bot.use(mixpanelMiddleware)
@@ -70,7 +82,7 @@ if (FEATURE_FLAGS.echo.botTranscribe) {
       const voiceFileS3Url =
         hardcodedFileUrl ||
         (await moveTelegramFileToS3(query, `${jobName}.ogg`))
-      if ((ctx as any).environment.debug) {
+      if (ctx.environment.debug) {
         console.log({ voiceFileS3Url })
       }
       const transcription = await transcribe(jobName, voiceFileS3Url)
@@ -90,7 +102,7 @@ bot.on('inline_query', async ctx => {
   try {
     const dominantLanguage = await comprehend(query)
     const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
-    if ((ctx as any).environment.debug) {
+    if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
 
@@ -139,13 +151,13 @@ if (FEATURE_FLAGS.command.botSpeech) {
 }
 
 bot.on(['message', 'edited_message'], async ctx => {
-  const message= ctx.message || ctx.editedMessage
-  const query = message.text.trim() ||message.text.trim()
+  const message = ctx.message || ctx.editedMessage
+  const query = message.text.trim() || message.text.trim()
 
   try {
     const dominantLanguage = await comprehend(query)
     const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
-    if ((ctx as any).environment.debug) {
+    if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
     const data = await translate(query, dominantLanguage, targetLanguage)

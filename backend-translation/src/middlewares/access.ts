@@ -1,7 +1,9 @@
 import { makeInlineQueryResultArticle } from "../message";
 import { isKnownUser, userNotKnownErrorMessage, isKnownGroup } from "../user";
+import { Middleware } from "telegraf";
+import { ContextMessageUpdateDecorated } from "..";
 
-export const accessMiddleware = async (ctx, next) => {
+export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async (ctx, next) => {
   if (ctx.inlineQuery && !(await isKnownUser(ctx.from.id))) {
     console.log(`inlineQuery but unknown user`);
     ctx.answerInlineQuery(

@@ -1,13 +1,18 @@
 import Mixpanel from 'mixpanel'
+import { Middleware } from 'telegraf'
+import { ContextMessageUpdateDecorated } from '..'
 
-export const mixpanelMiddleware = (ctx, next) => {
+export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = (
+  ctx,
+  next,
+) => {
   if (!process.env.MIXPANEL_TOKEN) {
-    if ((ctx as any).environment.debug) {
+    if (ctx.environment.debug) {
       console.log('WARN: env MIXPANEL_TOKEN not provided')
     }
     return
   }
-  if ((ctx as any).environment.debug) {
+  if (ctx.environment.debug) {
     console.log('using mixpanel')
   }
   const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN)
@@ -28,7 +33,7 @@ export const mixpanelMiddleware = (ctx, next) => {
 
   if (ctx.mixpanel && from) {
     const mixpanel = ctx.mixpanel
-    if ((ctx as any).environment.debug) {
+    if (ctx.environment.debug) {
       console.log(`metrics - tracking user stats for user: ${from.username}`)
     }
     mixpanel.people.set(from.username, {
@@ -44,7 +49,7 @@ export const mixpanelMiddleware = (ctx, next) => {
   }
 
   const start = new Date()
-  return next(ctx).then(() => {
+  return next().then(() => {
     const ms = +new Date() - +start
     console.log('Response time %sms', ms)
   })
