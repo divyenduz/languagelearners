@@ -70,11 +70,13 @@ if (FEATURE_FLAGS.echo.botTranscribe) {
       const voiceFileS3Url =
         hardcodedFileUrl ||
         (await moveTelegramFileToS3(query, `${jobName}.ogg`))
-      if (ctx.environment.debug) {
+      if ((ctx as any).environment.debug) {
         console.log({ voiceFileS3Url })
       }
       const transcription = await transcribe(jobName, voiceFileS3Url)
-      ctx.reply(transcription)
+      ctx.reply(transcription, {
+        reply_to_message_id: ctx.message.message_id,
+      })
     } catch (e) {
       console.log(e.toString())
     }
@@ -88,7 +90,7 @@ bot.on('inline_query', async ctx => {
   try {
     const dominantLanguage = await comprehend(query)
     const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
-    if (ctx.environment.debug) {
+    if ((ctx as any).environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
 
@@ -142,11 +144,13 @@ bot.on('text', async ctx => {
   try {
     const dominantLanguage = await comprehend(query)
     const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
-    if (ctx.environment.debug) {
+    if ((ctx as any).environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
     const data = await translate(query, dominantLanguage, targetLanguage)
-    ctx.reply(data)
+    ctx.reply(data, {
+      reply_to_message_id: ctx.message.message_id,
+    })
   } catch (e) {
     console.log(e.toString())
   }

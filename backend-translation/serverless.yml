@@ -1,6 +1,6 @@
 service: backend-translation
 
-frameworkVersion: '=1.42.3'
+frameworkVersion: '=1.60.1'
 
 plugins:
   - serverless-dotenv-plugin

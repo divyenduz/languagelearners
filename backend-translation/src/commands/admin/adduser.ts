@@ -12,9 +12,7 @@ export const addAddUserCommand = bot => {
       if (existingUser) {
         if (existingUser.plan !== 'PAST') {
           ctx.reply(
-            `User with email ${existingUser.email}, already exists with plan ${
-              existingUser.plan
-            }`,
+            `User with email ${existingUser.email}, already exists with plan ${existingUser.plan}`,
           )
         } else {
           const user = await prisma.updateUser({
@@ -30,7 +28,7 @@ export const addAddUserCommand = bot => {
 
           const invitationLink = makeInvitationLink({
             id: user.id,
-            production: ctx.environment.production,
+            production: (ctx as any).environment.production,
           })
 
           inviteUserViaEmail({
@@ -52,7 +50,7 @@ export const addAddUserCommand = bot => {
         })
 
         const invitationLink = `https://telegram.me/LingoParrot${
-          ctx.environment.production ? '' : 'Dev'
+          (ctx as any).environment.production ? '' : 'Dev'
         }Bot?start=${user.id}`
 
         inviteUserViaEmail({
