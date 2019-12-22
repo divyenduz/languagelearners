@@ -1,6 +1,5 @@
 node_modules/
 .serverless/
-iopipe_handlers/
 
 .env
 .env.production
