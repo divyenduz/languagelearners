@@ -138,8 +138,9 @@ if (FEATURE_FLAGS.command.botSpeech) {
   addSpeakCommand(bot)
 }
 
-bot.on('text', async ctx => {
-  const query = ctx.message.text.trim()
+bot.on(['message', 'edited_message'], async ctx => {
+  const message= ctx.message || ctx.editedMessage
+  const query = message.text.trim() ||message.text.trim()
 
   try {
     const dominantLanguage = await comprehend(query)
@@ -149,7 +150,7 @@ bot.on('text', async ctx => {
     }
     const data = await translate(query, dominantLanguage, targetLanguage)
     ctx.reply(data, {
-      reply_to_message_id: ctx.message.message_id,
+      reply_to_message_id: message.message_id,
     })
   } catch (e) {
     console.log(e.toString())
