@@ -1,21 +1,29 @@
+import { Telegraf } from 'telegraf'
+import { ContextMessageUpdateDecorated } from '../..'
 import { isAdmin, inviteUserViaEmail, makeInvitationLink } from '../../user'
 
-import { prisma } from '../../generated/prisma-client'
+import { PrismaClient } from '@prisma/client'
 
-export const addAddUserCommand = bot => {
+const client = new PrismaClient()
+
+export const addAddUserCommand = (
+  bot: Telegraf<ContextMessageUpdateDecorated>,
+) => {
   bot.command('adduser', async ctx => {
     if (await isAdmin(ctx.from.id)) {
       const query = ctx.message.text.replace('/adduser', '').trim()
-      const existingUser = await prisma.user({
-        email: query,
+      const existingUser = await client.users.findOne({
+        where: {
+          email: query,
+        },
       })
       if (existingUser) {
         if (existingUser.plan !== 'PAST') {
-          ctx.reply(
+          await ctx.reply(
             `User with email ${existingUser.email}, already exists with plan ${existingUser.plan}`,
           )
         } else {
-          const user = await prisma.updateUser({
+          const user = await client.users.update({
             where: {
               email: query,
             },
@@ -28,7 +36,7 @@ export const addAddUserCommand = bot => {
 
           const invitationLink = makeInvitationLink({
             id: user.id,
-            production: (ctx).environment.production,
+            production: ctx.environment.production,
           })
 
           inviteUserViaEmail({
@@ -36,21 +44,23 @@ export const addAddUserCommand = bot => {
             invitationLink,
           })
 
-          ctx.reply(
+          await ctx.reply(
             `Invitation link ${invitationLink} sent to user's email address ${query}`,
           )
         }
       } else {
         // TODO: Simply repeated code from this if/else block
-        const user = await prisma.createUser({
-          email: query,
-          plan: 'GUEST',
-          source_language: 'AUTO',
-          target_language: 'DE',
+        const user = await client.users.create({
+          data: {
+            email: query,
+            plan: 'GUEST',
+            source_language: 'AUTO',
+            target_language: 'DE',
+          },
         })
 
         const invitationLink = `https://telegram.me/LingoParrot${
-          (ctx).environment.production ? '' : 'Dev'
+          ctx.environment.production ? '' : 'Dev'
         }Bot?start=${user.id}`
 
         inviteUserViaEmail({
@@ -58,7 +68,7 @@ export const addAddUserCommand = bot => {
           invitationLink,
         })
 
-        ctx.reply(
+        await ctx.reply(
           `Invitation link ${invitationLink} sent to user's email address ${query}`,
         )
       }

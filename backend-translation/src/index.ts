@@ -29,7 +29,6 @@ import {
   addSpeakCommand,
   addAddUserCommand,
   addRemoveUserCommand,
-  addListUsersCommand,
   addBroadcastCommand,
 } from './commands'
 import { Mixpanel } from 'mixpanel'
@@ -61,7 +60,6 @@ bot.use(accessMiddleware)
 addHelpCommand(bot)
 addAddUserCommand(bot)
 addRemoveUserCommand(bot)
-addListUsersCommand(bot)
 addBroadcastCommand(bot)
 
 // TODO: Other languages are coming
@@ -86,7 +84,7 @@ if (FEATURE_FLAGS.echo.botTranscribe) {
         console.log({ voiceFileS3Url })
       }
       const transcription = await transcribe(jobName, voiceFileS3Url)
-      ctx.reply(transcription, {
+      await ctx.reply(transcription, {
         reply_to_message_id: ctx.message.message_id,
       })
     } catch (e) {
@@ -137,7 +135,7 @@ bot.on('inline_query', async ctx => {
       ]
     }
 
-    ctx.answerInlineQuery(result, {
+    await ctx.answerInlineQuery(result, {
       is_personal: true,
       cache_time: 0,
     })
@@ -161,26 +159,28 @@ bot.on(['message', 'edited_message'], async ctx => {
       console.log({ query }, { dominantLanguage })
     }
     const data = await translate(query, dominantLanguage, targetLanguage)
-    ctx.reply(data, {
+    await ctx.reply(data, {
       reply_to_message_id: message.message_id,
     })
   } catch (e) {
     console.log(e.toString())
+    await ctx.reply('🐞 Failed to translate, our team has been notified.', {
+      reply_to_message_id: message.message_id,
+    })
   }
 })
 
-module.exports.handler = (event, ctx, callback) => {
+module.exports.handler = async (event: any, ctx: any, callback: any) => {
   if (event.httpMethod === 'GET') {
     // For health checks
-    callback(null, {
+    return {
       statusCode: 200,
       body: 'OK',
-    })
-    return
+    }
   }
-  bot.handleUpdate(JSON.parse(event.body))
-  callback(null, {
+  await bot.handleUpdate(JSON.parse(event.body))
+  return {
     statusCode: 200,
     body: 'OK',
-  })
+  }
 }

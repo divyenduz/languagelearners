@@ -1,20 +1,25 @@
+import { Telegraf, ContextMessageUpdate } from 'telegraf'
 import { isAdmin } from '../../user'
 
-import { prisma } from '../../generated/prisma-client'
+import { PrismaClient } from '@prisma/client'
 
-export const addRemoveUserCommand = bot => {
+const client = new PrismaClient()
+
+export const addRemoveUserCommand = (bot: Telegraf<ContextMessageUpdate>) => {
   bot.command('removeuser', async ctx => {
     if (await isAdmin(ctx.from.id)) {
       const query = ctx.message.text.replace('/removeuser', '').trim()
-      const existingUser = await prisma.user({
-        email: query,
+      const existingUser = await client.users.findOne({
+        where: {
+          email: query,
+        },
       })
       if (!existingUser) {
-        ctx.reply(`User with email id ${query}, does not exists`)
+        await ctx.reply(`User with email id ${query}, does not exists`)
       } else if (existingUser.plan === 'PAST') {
-        ctx.reply(`User with email id ${query}, is already in PAST plan`)
+        await ctx.reply(`User with email id ${query}, is already in PAST plan`)
       } else {
-        const user = await prisma.updateUser({
+        const user = await client.users.update({
           where: {
             id: existingUser.id,
           },
@@ -22,7 +27,7 @@ export const addRemoveUserCommand = bot => {
             plan: 'PAST',
           },
         })
-        ctx.reply(`User with email ${user.email} moved to plan PAST`)
+        await ctx.reply(`User with email ${user.email} moved to plan PAST`)
       }
     } else {
       console.log(`Admin command from non-admin user ${ctx.from.username}`)
