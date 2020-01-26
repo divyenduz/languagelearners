@@ -3,7 +3,6 @@ import { addStartCommand } from './start'
 import { addHelpCommand } from './help'
 import { addAddUserCommand } from './admin/adduser'
 import { addRemoveUserCommand } from './admin/removeuser'
-import { addBroadcastCommand } from './admin/broadcast'
 
 export {
   addSpeakCommand,
@@ -11,5 +10,4 @@ export {
   addHelpCommand,
   addAddUserCommand,
   addRemoveUserCommand,
-  addBroadcastCommand,
 }

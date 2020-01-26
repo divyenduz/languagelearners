@@ -13,12 +13,6 @@ provider:
 stage: ${env:NODE_ENV}
 region: us-east-1
 
-# package:
-#   include:
-#     - dist/**
-#   exclude:
-#     - src/**
-
 functions:
   translate:
     handler: dist/index.handler

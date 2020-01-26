@@ -1,9 +1,7 @@
-import { sendMail } from '../wrapper'
+import { sendMail } from '../api'
 
 // TODO: Unify data access to one place, we shouldn't be importing storage helpers all over the place
 import { PrismaClient } from '@prisma/client'
-
-import { PRODUCTION } from '../globals'
 
 const client = new PrismaClient()
 
@@ -31,17 +29,6 @@ export const isKnownUser = async userId => {
   } else {
     return false
   }
-}
-
-// TODO: Move this to use backend state making it possible to add new groups via admin commands
-export const isKnownGroup = groupName => {
-  const developmentGroups = ['Development - Language Learners Club']
-  const productionGroups = ['German - Language Learners Club']
-  const knownGroups = PRODUCTION
-    ? [...productionGroups]
-    : [...developmentGroups]
-  const index = knownGroups.indexOf(groupName)
-  return index > -1
 }
 
 // TODO: Unify messaging via some template system

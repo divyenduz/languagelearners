@@ -6,16 +6,8 @@ import {
   makeInlineQueryResultVoice,
 } from './message'
 
-import {
-  translate,
-  speech,
-  upload,
-  comprehend,
-  moveTelegramFileToS3,
-} from './wrapper'
+import { translate, speech, upload, comprehend } from './api'
 import { FEATURE_FLAGS } from './globals'
-
-import { transcribe } from './future/transcribe'
 
 import {
   mixpanelMiddleware,
@@ -29,7 +21,6 @@ import {
   addSpeakCommand,
   addAddUserCommand,
   addRemoveUserCommand,
-  addBroadcastCommand,
 } from './commands'
 import { Mixpanel } from 'mixpanel'
 
@@ -60,37 +51,12 @@ bot.use(accessMiddleware)
 addHelpCommand(bot)
 addAddUserCommand(bot)
 addRemoveUserCommand(bot)
-addBroadcastCommand(bot)
 
 // TODO: Other languages are coming
 // TODO: Unify language maps
 const languageMap = {
   en: 'en-US',
   de: 'de-DE',
-}
-
-if (FEATURE_FLAGS.echo.botTranscribe) {
-  bot.on('voice', async ctx => {
-    const query = ctx.message.voice
-    console.log(`Voice ${query.file_id} from ${ctx.from.username}`)
-    const jobName = uuidv4()
-    console.log(`JobName: ${jobName}`)
-    try {
-      const hardcodedFileUrl = 'https://s3.amazonaws.com/lingoparrot/voice.mp3'
-      const voiceFileS3Url =
-        hardcodedFileUrl ||
-        (await moveTelegramFileToS3(query, `${jobName}.ogg`))
-      if (ctx.environment.debug) {
-        console.log({ voiceFileS3Url })
-      }
-      const transcription = await transcribe(jobName, voiceFileS3Url)
-      await ctx.reply(transcription, {
-        reply_to_message_id: ctx.message.message_id,
-      })
-    } catch (e) {
-      console.log(e.toString())
-    }
-  })
 }
 
 // TODO:  Move events to separate files for better code readability i.e. less code
