@@ -9,7 +9,7 @@ export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async
 ) => {
   if (ctx.inlineQuery && !(await isKnownUser(ctx.from.id))) {
     console.log(`inlineQuery but unknown user`)
-    ctx.answerInlineQuery(
+    await ctx.answerInlineQuery(
       [
         makeInlineQueryResultArticle({
           title: 'Join LanguageLearners to use the LingoParrot bot.',
@@ -53,5 +53,8 @@ export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async
   }
 
   // Bot echoes in group for everyone.
-  next()
+  const start = new Date()
+  await next()
+  const ms = +new Date() - +start
+  console.log('Response time %sms', ms)
 }

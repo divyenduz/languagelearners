@@ -2,7 +2,7 @@ import Mixpanel from 'mixpanel'
 import { Middleware } from 'telegraf'
 import { ContextMessageUpdateDecorated } from '..'
 
-export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = (
+export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = async (
   ctx,
   next,
 ) => {
@@ -49,8 +49,7 @@ export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = (
   }
 
   const start = new Date()
-  return next().then(() => {
-    const ms = +new Date() - +start
-    console.log('Response time %sms', ms)
-  })
+  await next()
+  const ms = +new Date() - +start
+  console.log('Response time %sms', ms)
 }
