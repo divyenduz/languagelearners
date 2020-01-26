@@ -1,3 +1,4 @@
+// Can this be improved via https://github.com/gcanti/io-ts
 export namespace Razorpay {
   type ContainsKey = 'subscription' | 'payment' | 'order' | 'invoice'
 

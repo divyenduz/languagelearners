@@ -1,5 +1,5 @@
 import { makeInlineQueryResultArticle } from '../message'
-import { isKnownUser, userNotKnownErrorMessage, isKnownGroup } from '../user'
+import { isKnownUser, userNotKnownErrorMessage } from '../user'
 import { Middleware } from 'telegraf'
 import { ContextMessageUpdateDecorated } from '..'
 
@@ -35,20 +35,6 @@ export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async
   ) {
     console.log(`private chat but but unknown user`)
     await ctx.reply(userNotKnownErrorMessage(ctx.from.username))
-    return
-  }
-
-  if (
-    ctx.message &&
-    ctx.message.from &&
-    ctx.message.chat &&
-    (ctx.message.chat.type === 'group' ||
-      ctx.message.chat.type === 'supergroup') &&
-    !isKnownGroup(ctx.message.chat.title)
-  ) {
-    if (!isKnownGroup(ctx.message.chat.title)) {
-      console.log(`unknown group: ${ctx.message.chat.title}`)
-    }
     return
   }
 

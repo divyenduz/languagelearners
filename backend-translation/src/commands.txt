@@ -1,8 +1,6 @@
 start - Welcome message. 
 help - Features of LingoParrot bot.
 speak <text> - Speak the message
-speakt <text> - Translate and speak the message
 ===HIDDEN COMMANDS===========================
 adduser <email> - add a user via their email
 removeuser <email> - remove a user via their email
-broadcast <text> - send a broadcast message to all users
