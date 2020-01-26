@@ -5,5 +5,4 @@ speakt <text> - Translate and speak the message
 ===HIDDEN COMMANDS===========================
 adduser <email> - add a user via their email
 removeuser <email> - remove a user via their email
-listusers - list all currently known users
 broadcast <text> - send a broadcast message to all users

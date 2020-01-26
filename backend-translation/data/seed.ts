@@ -1,16 +1,20 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
-import { prisma } from '../src/generated/prisma-client'
+import { PrismaClient } from '@prisma/client'
 import { PRODUCTION } from '../src/globals'
 
+const client = new PrismaClient()
+
 async function run() {
-  const user = await prisma.createUser({
-    email: 'divyendu.z@gmail.com',
-    type: 'ADMIN',
-    plan: 'GUEST',
-    telegram_id: '',
-    telegram_chat_id: '',
+  const user = await client.users.create({
+    data: {
+      email: 'divyendu.z@gmail.com',
+      type: 'ADMIN',
+      plan: 'GUEST',
+      telegram_id: '',
+      telegram_chat_id: '',
+    },
   })
 
   const invitationLink = `https://telegram.me/LingoParrot${

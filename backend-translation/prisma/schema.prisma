@@ -1,0 +1,90 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+}
+
+model Payment {
+  id                       String            @id @default(cuid())
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @default(now())
+  amount                   Int
+  provider_subscription_id String
+  provider_payment_id      String            @unique
+  subscription             SubscriptionPlan?
+}
+
+model SubscriptionPlan {
+  id                       String    @id @default(cuid())
+  provider_plan_id         String
+  provider_subscription_id String
+  payments                 Payment[]
+  users                    User[]    @relation(references: [subscription])
+}
+
+model Telemetry {
+  id            String        @id @default(cuid())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @default(now())
+  filename      String
+  payload       String
+  telemetry_key String
+  type          TelemetryType
+}
+
+model User {
+  id                   String            @id @default(cuid())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @default(now())
+  email                String            @unique
+  plan                 Plan
+  provider_customer_id String?
+  source_language      SourceLanguage    @default(value: AUTO)
+  target_language      TargetLanguage    @default(value: DE)
+  telegram_chat_id     String?           @unique
+  telegram_id          String?           @unique
+  type                 UserType          @default(value: USER)
+  subscription         SubscriptionPlan?
+  payment              Payment[]
+}
+
+enum SourceLanguage {
+  AUTO
+  EN
+  DE
+  ES
+}
+
+enum TargetLanguage {
+  EN
+  DE
+  ES
+}
+
+enum Plan {
+  // Was a user in past but does not exist now
+  PAST
+  // Free as a friend, we do this for feedback
+  GUEST
+  // People who were onboarded on introductory price of $5/month
+  INTRO_5
+  // The original $9 plan
+  PLAN_9
+  // $100/year as discount
+  YEARLY_100
+  // $199 and LLC is yours for life
+  LIFETIME_199
+}
+
+enum TelemetryType {
+  PROVIDER_PAYMENT_EVENT
+}
+
+enum UserType {
+  ADMIN
+  USER
+}

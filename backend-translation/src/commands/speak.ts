@@ -48,7 +48,7 @@ export const addSpeakCommand = (
           ? await translate(query, dominantLanguage, useLanguage)
           : query
         const voice = await speech(data, languageMap[useLanguage])
-        ctx.replyWithVoice(
+        await ctx.replyWithVoice(
           {
             source: voice,
           },

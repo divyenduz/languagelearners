@@ -1,25 +1,28 @@
-import { makeInlineQueryResultArticle } from "../message";
-import { isKnownUser, userNotKnownErrorMessage, isKnownGroup } from "../user";
-import { Middleware } from "telegraf";
-import { ContextMessageUpdateDecorated } from "..";
+import { makeInlineQueryResultArticle } from '../message'
+import { isKnownUser, userNotKnownErrorMessage, isKnownGroup } from '../user'
+import { Middleware } from 'telegraf'
+import { ContextMessageUpdateDecorated } from '..'
 
-export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async (ctx, next) => {
+export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async (
+  ctx,
+  next,
+) => {
   if (ctx.inlineQuery && !(await isKnownUser(ctx.from.id))) {
-    console.log(`inlineQuery but unknown user`);
-    ctx.answerInlineQuery(
+    console.log(`inlineQuery but unknown user`)
+    await ctx.answerInlineQuery(
       [
         makeInlineQueryResultArticle({
-          title: "Join LanguageLearners to use the LingoParrot bot.",
-          description: "https://languagelearners.club",
-          message: userNotKnownErrorMessage(ctx.from.username)
-        })
+          title: 'Join LanguageLearners to use the LingoParrot bot.',
+          description: 'https://languagelearners.club',
+          message: userNotKnownErrorMessage(ctx.from.username),
+        }),
       ],
       {
         is_personal: true,
-        cache_time: 0
-      }
-    );
-    return;
+        cache_time: 0,
+      },
+    )
+    return
   }
 
   // Private access of bot requires access.
@@ -27,28 +30,31 @@ export const accessMiddleware: Middleware<ContextMessageUpdateDecorated> = async
     ctx.message &&
     ctx.message.from &&
     ctx.message.chat &&
-    ctx.message.chat.type === "private" &&
+    ctx.message.chat.type === 'private' &&
     !(await isKnownUser(ctx.message.from.id))
   ) {
-    console.log(`private chat but but unknown user`);
-    ctx.reply(userNotKnownErrorMessage(ctx.from.username));
-    return;
+    console.log(`private chat but but unknown user`)
+    await ctx.reply(userNotKnownErrorMessage(ctx.from.username))
+    return
   }
 
   if (
     ctx.message &&
     ctx.message.from &&
     ctx.message.chat &&
-    (ctx.message.chat.type === "group" ||
-      ctx.message.chat.type === "supergroup") &&
+    (ctx.message.chat.type === 'group' ||
+      ctx.message.chat.type === 'supergroup') &&
     !isKnownGroup(ctx.message.chat.title)
   ) {
     if (!isKnownGroup(ctx.message.chat.title)) {
-      console.log(`unknown group: ${ctx.message.chat.title}`);
+      console.log(`unknown group: ${ctx.message.chat.title}`)
     }
-    return;
+    return
   }
 
   // Bot echoes in group for everyone.
-  next();
-};
+  const start = new Date()
+  await next()
+  const ms = +new Date() - +start
+  console.log('Response time %sms', ms)
+}

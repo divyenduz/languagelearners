@@ -1,12 +1,17 @@
 import { sendMail } from '../wrapper'
 
 // TODO: Unify data access to one place, we shouldn't be importing storage helpers all over the place
-import { prisma } from '../generated/prisma-client'
+import { PrismaClient } from '@prisma/client'
+
 import { PRODUCTION } from '../globals'
 
+const client = new PrismaClient()
+
 export const isAdmin = async userId => {
-  const user = await prisma.user({
-    telegram_id: userId.toString(),
+  const user = await client.users.findOne({
+    where: {
+      telegram_id: userId.toString(),
+    },
   })
   if (user && user.type === 'ADMIN') {
     return true
@@ -16,8 +21,10 @@ export const isAdmin = async userId => {
 }
 
 export const isKnownUser = async userId => {
-  const user = await prisma.user({
-    telegram_id: userId.toString(),
+  const user = await client.users.findOne({
+    where: {
+      telegram_id: userId.toString(),
+    },
   })
   if (user && user.plan !== 'PAST') {
     return true
