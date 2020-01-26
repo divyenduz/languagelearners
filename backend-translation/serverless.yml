@@ -4,9 +4,7 @@ frameworkVersion: '=1.60.1'
 
 plugins:
   - serverless-dotenv-plugin
-  # - serverless-plugin-typescript
   - serverless-offline
-  - serverless-localtunnel
 
 provider:
   name: aws
@@ -15,11 +13,11 @@ provider:
 stage: ${env:NODE_ENV}
 region: us-east-1
 
-package:
-  include:
-    - dist/**
-  exclude:
-    - src/**
+# package:
+#   include:
+#     - dist/**
+#   exclude:
+#     - src/**
 
 functions:
   translate:
@@ -42,8 +40,3 @@ functions:
           method: get
     memorySize: 128
     timeout: 10
-
-custom:
-  localtunnel:
-    subdomain: languagelearnersclub
-    port: 3000
