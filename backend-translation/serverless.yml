@@ -16,6 +16,8 @@ region: us-east-1
 functions:
   translate:
     handler: dist/index.handler
+    layers:
+      - { Ref: BinariesLambdaLayer }
     events:
       - http:
           path: /
@@ -34,3 +36,8 @@ functions:
           method: get
     memorySize: 128
     timeout: 10
+
+layers:
+  binaries:
+    path: layers
+    description: 'ffmpeg, ffprobe'
