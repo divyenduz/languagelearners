@@ -4,6 +4,7 @@ import { Readable } from 'stream'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import uuidv4 from 'uuid/v4'
 
 const ffmpeg = ffmpegFactory({
   logger: {
@@ -29,7 +30,13 @@ const speechAPI = new AWS.Polly({
   signatureVersion: 'v4',
 })
 
-export const speech = async (sourceText, languageCode = 'de-DE') => {
+// TODO: Enable strict true
+type Optional<T> = T | null
+
+export const speech: (
+  sourceText: string,
+  languageCode: string,
+) => Promise<Optional<Buffer>> = async (sourceText, languageCode = 'de-DE') => {
   const germanVoiceId = 'Vicki'
   const defaultVoiceId = germanVoiceId
   const voiceIdLanguageCodeMap = {
@@ -53,17 +60,24 @@ export const speech = async (sourceText, languageCode = 'de-DE') => {
     readable.push(data.AudioStream)
     readable.push(null)
 
-    const outputPath = path.join(os.tmpdir(), 'tmp.ogg')
+    const filename = uuidv4()
+    const outputPath = path.join(os.tmpdir(), `${filename}.ogg`)
     console.log({ outputPath })
 
-    const job = ffmpeg
-      .input(readable)
-      .audioCodec('libopus')
-      .output(outputPath)
-    job.run()
-
-    const buffer = fs.readFileSync(outputPath)
-    return buffer
+    return new Promise((resolve, reject) => {
+      ffmpeg
+        .input(readable)
+        .audioCodec('libopus')
+        .output(outputPath)
+        .on('end', () => {
+          const buffer = fs.readFileSync(outputPath)
+          resolve(buffer)
+        })
+        .on('error', () => {
+          reject(null)
+        })
+        .run()
+    })
   } catch (e) {
     throw new Error(`Failed to synthesize: ${e.toString()}`)
   }

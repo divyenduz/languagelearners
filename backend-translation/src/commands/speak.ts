@@ -30,17 +30,32 @@ export const addSpeakCommand = (
         }
         const data = query
         const voice = await speech(data, languageMap[dominantLanguage])
-        await ctx.replyWithVoice(
-          {
-            source: voice,
-          },
-          {
-            reply_to_message_id: message.message_id,
-            caption: `🔍 Identified language is ${dominantLanguage.toUpperCase()}`,
-          },
-        )
+        if (voice) {
+          await ctx.replyWithVoice(
+            {
+              source: voice,
+            },
+            {
+              reply_to_message_id: message.message_id,
+              caption: `🔍 Identified language is ${dominantLanguage.toUpperCase()}`,
+            },
+          )
+        } else {
+          await ctx.reply(
+            '🐞 Failed to create voice for the text. Our team has been notified.',
+            {
+              reply_to_message_id: message.message_id,
+            },
+          )
+        }
       } catch (e) {
         console.log(e.toString())
+        await ctx.reply(
+          '🐞 Failed to create voice for the text. Our team has been notified.',
+          {
+            reply_to_message_id: message.message_id,
+          },
+        )
       }
     },
   )
