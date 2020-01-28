@@ -52,7 +52,9 @@
     "get-bot-production": "ts-node ./scripts/get-bot.ts --production",
     "migrate": "echo 'I removed prisma and introspected this DB, migrations would probably happen in SQL'",
     "migrate-production": "echo 'I removed prisma and introspected this DB, migrations would probably happen in SQL'",
+    "predeploy": "rm -rf ./node_modules/@prisma/client/runtime/query-engine-darwin",
     "deploy": "sls deploy --force --aws-profile zoid && yarn set-webhook",
+    "postdeploy": "yarn prisma2 generate",
     "deploy-production": "NODE_ENV=production sls deploy --stage production --aws-profile zoid"
   }
 }

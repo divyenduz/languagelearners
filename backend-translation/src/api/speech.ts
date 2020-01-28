@@ -6,23 +6,6 @@ import path from 'path'
 import os from 'os'
 import uuidv4 from 'uuid/v4'
 
-const ffmpeg = ffmpegFactory({
-  logger: {
-    debug: data => {
-      console.log(`FFMPEG DEBUG: ${data}`)
-    },
-    info: data => {
-      console.log(`FFMPEG INFO: ${data}`)
-    },
-    warn: data => {
-      console.log(`FFMPEG WARN: ${data}`)
-    },
-    error: data => {
-      console.log(`FFMPEG ERROR: ${data}`)
-    },
-  },
-})
-
 const speechAPI = new AWS.Polly({
   region: 'us-east-1',
   accessKeyId: process.env.ACCESS_KEY_ID,
@@ -63,6 +46,23 @@ export const speech: (
     const filename = uuidv4()
     const outputPath = path.join(os.tmpdir(), `${filename}.ogg`)
     console.log({ outputPath })
+
+    const ffmpeg = ffmpegFactory({
+      logger: {
+        debug: data => {
+          console.log(`FFMPEG DEBUG: ${data}`)
+        },
+        info: data => {
+          console.log(`FFMPEG INFO: ${data}`)
+        },
+        warn: data => {
+          console.log(`FFMPEG WARN: ${data}`)
+        },
+        error: data => {
+          console.log(`FFMPEG ERROR: ${data}`)
+        },
+      },
+    })
 
     return new Promise((resolve, reject) => {
       ffmpeg
