@@ -13,8 +13,10 @@
     "fluent-ffmpeg": "2.1.2",
     "form-data": "3.0.0",
     "mixpanel": "0.11.0",
+    "multilines": "1.0.3",
     "node-fetch": "2.6.0",
     "request": "2.88.0",
+    "strip-ansi": "6.0.0",
     "telegraf": "3.34.1",
     "uuid": "3.3.3"
   },

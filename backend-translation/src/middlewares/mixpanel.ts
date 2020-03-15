@@ -18,7 +18,6 @@ export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = asy
   const mixpanel = Mixpanel.init(process.env.MIXPANEL_TOKEN)
   ctx.mixpanel = mixpanel
 
-  // TODO: Unify logging in its own middleware.
   const from =
     (ctx.message && ctx.message.from) ||
     (ctx.inlineQuery && ctx.inlineQuery.from && ctx.inlineQuery.from) ||

@@ -37,7 +37,7 @@ const handleSubscriptionChargedEvent = async (body: Razorpay.Event) => {
       data: {
         plan: 'INTRO_5', // TODO: Unhardcode this
         email: body.payload.payment.entity.email,
-        source_language: 'AUTO',
+        source_language: 'EN',
         target_language: 'DE', // TODO: Ask this earlier in the flow, maybe while payment?
         payment: {
           create: {

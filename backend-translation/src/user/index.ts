@@ -1,6 +1,5 @@
 import { sendMail } from '../api'
 
-// TODO: Unify data access to one place, we shouldn't be importing storage helpers all over the place
 import { PrismaClient } from '@prisma/client'
 
 const client = new PrismaClient()
@@ -31,8 +30,6 @@ export const isKnownUser = async userId => {
   }
 }
 
-// TODO: Unify messaging via some template system
-// TODO: Re-send invite when we know a user is in system but not using /start workflow
 export const userNotKnownErrorMessage = userName => {
   const joinLink = 'https://languagelearners.club'
   return `User ${userName} is not identified. You need to join ${joinLink} before using LingoParrot or please click the invitation link from the invitation email if you have it.`
@@ -45,8 +42,6 @@ export const makeInvitationLink = ({ id, production }) => {
 }
 
 export const inviteUserViaEmail = ({ email, invitationLink }) => {
-  // TODO: Separate email bodies into a concept of "email templates".
-  // They shouldn't be scattered all over the code. Maybe https://heml.io/
   sendMail({
     email,
     subject: `You have been invited to join Language Learners Club ✅`,

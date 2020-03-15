@@ -2,12 +2,13 @@ import { comprehend, speech } from '../api'
 import { PRODUCTION } from '../globals'
 import Telegraf from 'telegraf'
 import { ContextMessageUpdateDecorated } from '..'
+import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
 
-// TODO: unify language maps
-const languageMap = {
-  en: 'en-US',
-  de: 'de-DE',
-}
+const languageMap = new LanguageMap()
+
+import { PrismaClient } from '@prisma/client'
+
+const client = new PrismaClient()
 
 export const addSpeakCommand = (
   bot: Telegraf<ContextMessageUpdateDecorated>,
@@ -24,12 +25,19 @@ export const addSpeakCommand = (
         .replace('/speak', '')
         .trim()
       try {
-        const dominantLanguage = await comprehend(query)
+        const user = await client.users.findOne({
+          where: {
+            telegram_id: ctx.from.id.toString(),
+          },
+        })
+        const dominantLanguage = await comprehend(
+          user.source_language as LanguageCode,
+        )(query)
         if (ctx.environment.debug) {
           console.log({ query }, { dominantLanguage })
         }
         const data = query
-        const voice = await speech(data, languageMap[dominantLanguage])
+        const voice = await speech(data, dominantLanguage as LanguageCode)
         if (voice) {
           await ctx.replyWithVoice(
             {
@@ -37,7 +45,9 @@ export const addSpeakCommand = (
             },
             {
               reply_to_message_id: message.message_id,
-              caption: `🔍 Identified language is ${dominantLanguage.toUpperCase()}`,
+              caption: `🔍 Identified language is ${languageMap.getName(
+                dominantLanguage as LanguageCode,
+              )}`,
             },
           )
         } else {

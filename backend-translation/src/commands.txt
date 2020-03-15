@@ -1,6 +1,9 @@
-start - Welcome message. 
+start - Welcome message.
 help - Features of LingoParrot bot.
-speak <text> - Speak the message
+speak - <text> Speak the message
+set_email - <email> Change the email in profile
+set_source_language - <EN|DE|ES> Set the source language in profile
+set_target_language - <EN|DE|ES> Set the target language in profile
 ===HIDDEN COMMANDS===========================
-adduser <email> - add a user via their email
-removeuser <email> - remove a user via their email
+adduser - <email> add a user via their email
+removeuser - <email> remove a user via their email

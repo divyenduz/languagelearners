@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import uuidv4 from 'uuid/v4'
+import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
 
 const speechAPI = new AWS.Polly({
   region: 'us-east-1',
@@ -16,23 +17,22 @@ const speechAPI = new AWS.Polly({
 // TODO: Enable strict true
 type Optional<T> = T | null
 
+const languageMap = new LanguageMap()
+
 export const speech: (
   sourceText: string,
-  languageCode: string,
-) => Promise<Optional<Buffer>> = async (sourceText, languageCode = 'de-DE') => {
-  const germanVoiceId = 'Vicki'
-  const defaultVoiceId = germanVoiceId
-  const voiceIdLanguageCodeMap = {
-    'de-DE': defaultVoiceId,
-    'en-US': 'Ivy',
-  }
+  languageCode: LanguageCode,
+) => Promise<Optional<Buffer>> = async (sourceText, languageCode) => {
+  const languageCountryCode = languageMap.getCode(languageCode)
+  const voiceId = languageMap.getVoice(languageCode)
+
   try {
     const data = await speechAPI
       .synthesizeSpeech({
         Text: sourceText,
-        LanguageCode: languageCode,
+        LanguageCode: languageCountryCode,
         OutputFormat: 'ogg_vorbis',
-        VoiceId: voiceIdLanguageCodeMap[languageCode] || defaultVoiceId,
+        VoiceId: voiceId,
       })
       .promise()
     if (!data || !(data.AudioStream instanceof Buffer)) {
