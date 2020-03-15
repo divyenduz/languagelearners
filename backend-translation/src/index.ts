@@ -23,6 +23,12 @@ import {
   addRemoveUserCommand,
 } from './commands'
 import { Mixpanel } from 'mixpanel'
+import { LanguageCode } from './utils/LanguageMap'
+
+import { PrismaClient } from '@prisma/client'
+import { addProfileCommands } from './commands/profile'
+
+const client = new PrismaClient()
 
 dotenv.config()
 
@@ -45,6 +51,7 @@ bot.use(mixpanelMiddleware)
 
 // Start command happens before access control
 addStartCommand(bot)
+addProfileCommands(bot)
 
 bot.use(accessMiddleware)
 
@@ -52,25 +59,31 @@ addHelpCommand(bot)
 addAddUserCommand(bot)
 addRemoveUserCommand(bot)
 
-// TODO: Other languages are coming
-// TODO: Unify language maps
-const languageMap = {
-  en: 'en-US',
-  de: 'de-DE',
-}
-
-// TODO:  Move events to separate files for better code readability i.e. less code
 bot.on('inline_query', async ctx => {
   const query = ctx.inlineQuery.query.trim()
 
   try {
-    const dominantLanguage = await comprehend(query)
-    const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
+    const user = await client.users.findOne({
+      where: {
+        telegram_id: ctx.from.id.toString(),
+      },
+    })
+    const dominantLanguage = await comprehend(
+      user.source_language as LanguageCode,
+    )(query)
+    const targetLanguage =
+      dominantLanguage === user.source_language.toLowerCase()
+        ? user.target_language
+        : user.source_language
     if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
 
-    const data = await translate(query, dominantLanguage, targetLanguage)
+    const data = await translate(
+      query,
+      dominantLanguage as LanguageCode,
+      targetLanguage as LanguageCode,
+    )
 
     // TODO: Can this type cast be removed
     let result: Array<any> = [
@@ -81,7 +94,7 @@ bot.on('inline_query', async ctx => {
       }),
     ]
     if (FEATURE_FLAGS.inline.botSpeech) {
-      const voice = await speech(data, languageMap[targetLanguage])
+      const voice = await speech(data, targetLanguage as LanguageCode)
       const fileUrl = await upload({
         name: `${uuidv4()}.ogg`,
         buffer: voice,
@@ -119,12 +132,26 @@ bot.on(['message', 'edited_message'], async ctx => {
   const query = message.text.trim() || message.text.trim()
 
   try {
-    const dominantLanguage = await comprehend(query)
-    const targetLanguage = dominantLanguage === 'de' ? 'en' : 'de'
+    const user = await client.users.findOne({
+      where: {
+        telegram_id: ctx.from.id.toString(),
+      },
+    })
+    const dominantLanguage = await comprehend(
+      user.source_language as LanguageCode,
+    )(query)
+    const targetLanguage =
+      dominantLanguage === user.source_language.toLowerCase()
+        ? user.target_language
+        : user.source_language
     if (ctx.environment.debug) {
       console.log({ query }, { dominantLanguage })
     }
-    const data = await translate(query, dominantLanguage, targetLanguage)
+    const data = await translate(
+      query,
+      dominantLanguage as LanguageCode,
+      targetLanguage as LanguageCode,
+    )
     await ctx.reply(data, {
       reply_to_message_id: message.message_id,
     })

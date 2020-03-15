@@ -29,7 +29,7 @@ export const addAddUserCommand = (
             },
             data: {
               plan: 'GUEST',
-              source_language: 'AUTO',
+              source_language: 'EN',
               target_language: 'DE',
             },
           })
@@ -49,12 +49,11 @@ export const addAddUserCommand = (
           )
         }
       } else {
-        // TODO: Simply repeated code from this if/else block
         const user = await client.users.create({
           data: {
             email: query,
             plan: 'GUEST',
-            source_language: 'AUTO',
+            source_language: 'EN',
             target_language: 'DE',
           },
         })

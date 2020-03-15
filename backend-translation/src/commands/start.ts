@@ -1,18 +1,26 @@
 import { Telegraf } from 'telegraf'
 import { ContextMessageUpdateDecorated } from '..'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, User } from '@prisma/client'
+
+import ml from 'multilines'
 
 const client = new PrismaClient()
+
+function getName(user: User) {
+  return `${user.first_name} ${user.last_name}`.trim()
+}
 
 export const addStartCommand = (
   bot: Telegraf<ContextMessageUpdateDecorated>,
 ) => {
   bot.start(async ctx => {
     const text = ctx.message.text
-    const id = text.replace('/start', '').trim()
+    const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
+
     const existingUser = await client.users.findOne({
       where: {
         id,
+        telegram_id: ctx.from.id.toString(),
       },
     })
 
@@ -20,10 +28,22 @@ export const addStartCommand = (
       console.log({ message: ctx.message })
     }
 
+    let user: User
     if (!existingUser) {
-      await ctx.reply(`User with id ${id} does not exist`)
+      // await ctx.reply(`User with id ${id} does not exist`)
+      user = await client.users.create({
+        data: {
+          first_name: ctx.from.first_name,
+          last_name: ctx.from.last_name,
+          plan: 'GUEST',
+          source_language: 'EN',
+          target_language: 'DE',
+          telegram_id: ctx.message.from.id.toString(),
+          telegram_chat_id: ctx.message.chat.id.toString(),
+        },
+      })
     } else {
-      const user = await client.users.update({
+      user = await client.users.update({
         where: {
           id,
         },
@@ -32,12 +52,11 @@ export const addStartCommand = (
           telegram_chat_id: ctx.message.chat.id.toString(),
         },
       })
+    }
 
-      // TODO: The community link is German only, maybe it should open a link that has links to all communities
-      // TODO: This community link is not personalized i.e. user can share it with anyone
-      await ctx.replyWithHTML(`Welcome ${user.email} to LingoParrot from LanguageLearners.club
-            
-Please join the German community using this <a href='https://t.me/joinchat/DGq5gw15zpNHPDKMO6-c3A'>link</a>`)
+    if (Boolean(user)) {
+      await ctx.replyWithHTML(ml`
+      | Welcome ${getName(user)} to LingoParrot from LanguageLearners.club`)
     }
   })
 }

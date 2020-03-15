@@ -40,10 +40,12 @@ model User {
   id                   String            @id @default(cuid())
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @default(now())
-  email                String            @unique
+  first_name           String?
+  last_name            String?
+  email                String?           @unique
   plan                 Plan
   provider_customer_id String?
-  source_language      SourceLanguage    @default(value: AUTO)
+  source_language      SourceLanguage    @default(value: EN)
   target_language      TargetLanguage    @default(value: DE)
   telegram_chat_id     String?           @unique
   telegram_id          String?           @unique
@@ -53,31 +55,21 @@ model User {
 }
 
 enum SourceLanguage {
-  AUTO
-  EN
-  DE
-  ES
+  EN DE ES NL FR HI IT JP KR RU SE
 }
 
 enum TargetLanguage {
-  EN
-  DE
-  ES
+  EN DE ES NL FR HI IT JP KR RU SE
 }
 
+// PAST: Was a user in past but does not exist now
+// GUEST: Free as a friend, we do this for feedback 
+// INTRO_5: People who were onboarded on introductory price of $5/month 
+// PLAN_9: The original $9 plan 
+// YEARLY_100: $100/year as discount 
+// LIFETIME_199: $199 and LLC is yours for life 
 enum Plan {
-  // Was a user in past but does not exist now
-  PAST
-  // Free as a friend, we do this for feedback
-  GUEST
-  // People who were onboarded on introductory price of $5/month
-  INTRO_5
-  // The original $9 plan
-  PLAN_9
-  // $100/year as discount
-  YEARLY_100
-  // $199 and LLC is yours for life
-  LIFETIME_199
+  PAST GUEST INTRO_5 PLAN_9 YEARLY_100 LIFETIME_199
 }
 
 enum TelemetryType {
@@ -85,6 +77,5 @@ enum TelemetryType {
 }
 
 enum UserType {
-  ADMIN
-  USER
+  ADMIN USER
 }

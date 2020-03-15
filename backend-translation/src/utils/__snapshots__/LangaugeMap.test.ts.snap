@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`language map should map languages to their info 1`] = `
+Object {
+  "code": "en-US",
+  "name": "English",
+  "voice": "Ivy",
+}
+`;
+
+exports[`language map should map languages to their info 2`] = `"en-US"`;
+
+exports[`language map should map languages to their info 3`] = `"Ivy"`;
+
+exports[`language map should map languages to their info 4`] = `"de-DE"`;
+
+exports[`language map should map languages to their info 5`] = `"Vicki"`;

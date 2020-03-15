@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import { LanguageCode } from '../utils/LanguageMap'
 
 const translateAPI = new AWS.Translate({
   region: 'us-east-1',
@@ -8,9 +9,9 @@ const translateAPI = new AWS.Translate({
 })
 
 export const translate = async (
-  sourceText,
-  sourceLanguageCode = 'auto',
-  targetLanguageCode = 'de',
+  sourceText: string,
+  sourceLanguageCode: LanguageCode,
+  targetLanguageCode: LanguageCode,
 ) => {
   try {
     const data = await translateAPI

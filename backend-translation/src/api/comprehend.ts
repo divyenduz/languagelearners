@@ -1,4 +1,5 @@
 import AWS from 'aws-sdk'
+import { LanguageCode } from '../utils/LanguageMap'
 
 const comprehendAPI = new AWS.Comprehend({
   accessKeyId: process.env.ACCESS_KEY_ID,
@@ -7,24 +8,26 @@ const comprehendAPI = new AWS.Comprehend({
   signatureVersion: 'v4',
 })
 
-export const comprehend = async sourceText => {
-  const languages = await comprehendAPI
-    .detectDominantLanguage({
-      Text: sourceText,
-    })
-    .promise()
-  const language = languages.Languages.reduce(
-    (dominantLanguage, language) => {
-      if (dominantLanguage.Score > language.Score) {
-        return dominantLanguage
-      } else {
-        return language
-      }
-    },
-    {
-      LanguageCode: 'de',
-      Score: 0,
-    },
-  )
-  return language.LanguageCode
+export const comprehend = (languageCode: LanguageCode) => {
+  return async sourceText => {
+    const languages = await comprehendAPI
+      .detectDominantLanguage({
+        Text: sourceText,
+      })
+      .promise()
+    const language = languages.Languages.reduce(
+      (dominantLanguage, language) => {
+        if (dominantLanguage.Score > language.Score) {
+          return dominantLanguage
+        } else {
+          return language
+        }
+      },
+      {
+        LanguageCode: languageCode.toLowerCase(),
+        Score: 0,
+      },
+    )
+    return language.LanguageCode
+  }
 }

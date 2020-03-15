@@ -23,7 +23,6 @@ describe('HTTP', () => {
 
 describe('Providers', () => {
   test('Translate', async () => {
-    expect(await translate('Hallo', 'auto', 'en')).toBe('Hello')
     expect(await translate('Hello', 'en', 'de')).toBe('Hallo')
     expect(await translate('Hallo', 'de', 'en')).toBe('Hello')
   })
