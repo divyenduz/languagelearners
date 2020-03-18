@@ -2,28 +2,11 @@ import { ContextMessageUpdateDecorated } from '..'
 import Telegraf from 'telegraf'
 import { PrismaClient, SourceLanguage, TargetLanguage } from '@prisma/client'
 import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
-import stripANSI from 'strip-ansi'
-
-import ml from 'multilines'
-import os from 'os'
 
 const client = new PrismaClient()
 
 const languageMap = new LanguageMap()
 const allLanguageCodes = languageMap.getAllLanguageCodes()
-
-const isKnownLanguage = (language: string) =>
-  allLanguageCodes.map(l => l.toLowerCase()).includes(language.toLowerCase())
-
-const knownLanguages = () => {
-  return allLanguageCodes
-    .map(languageCode => {
-      return `${languageCode.toUpperCase()} (${languageMap.getName(
-        languageCode,
-      )})`
-    })
-    .join(os.EOL)
-}
 
 export const addProfileCommands = (
   bot: Telegraf<ContextMessageUpdateDecorated>,
