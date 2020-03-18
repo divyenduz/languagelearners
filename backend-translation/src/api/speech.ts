@@ -25,6 +25,13 @@ export const speech: (
 ) => Promise<Optional<Buffer>> = async (sourceText, languageCode) => {
   const languageCountryCode = languageMap.getCode(languageCode)
   const voiceId = languageMap.getVoice(languageCode)
+  if (voiceId === '') {
+    throw new Error(
+      `Voice features are not suppported for ${languageMap.getName(
+        languageCode,
+      )} langauge`,
+    )
+  }
 
   try {
     const data = await speechAPI

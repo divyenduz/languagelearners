@@ -55,11 +55,11 @@ model User {
 }
 
 enum SourceLanguage {
-  EN DE ES NL FR HI IT JP KR RU SE
+  EN DE ES NL FR HI IT JP KR RU SE FA
 }
 
 enum TargetLanguage {
-  EN DE ES NL FR HI IT JP KR RU SE
+  EN DE ES NL FR HI IT JP KR RU SE FA
 }
 
 // PAST: Was a user in past but does not exist now
