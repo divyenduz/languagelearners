@@ -3,8 +3,10 @@ import { ContextMessageUpdateDecorated } from '..'
 import { PrismaClient, User } from '@prisma/client'
 
 import ml from 'multilines'
+import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
 
 const client = new PrismaClient()
+const languageMap = new LanguageMap()
 
 function getName(user: User) {
   return `${user.first_name} ${user.last_name}`.trim()
@@ -14,12 +16,12 @@ export const addStartCommand = (
   bot: Telegraf<ContextMessageUpdateDecorated>,
 ) => {
   bot.start(async ctx => {
-    const text = ctx.message.text
-    const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
+    // const text = ctx.message.text
+    // const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
 
     const existingUser = await client.users.findOne({
       where: {
-        id,
+        // id,
         telegram_id: ctx.from.id.toString(),
       },
     })
@@ -45,7 +47,8 @@ export const addStartCommand = (
     } else {
       user = await client.users.update({
         where: {
-          id,
+          // id,
+          telegram_id: ctx.from.id.toString(),
         },
         data: {
           telegram_id: ctx.message.from.id.toString(),
@@ -54,9 +57,20 @@ export const addStartCommand = (
       })
     }
 
+    const sourceLanguageName = languageMap.getName(
+      user.source_language.toLowerCase() as LanguageCode,
+    )
+    const targetLanguageName = languageMap.getName(
+      user.target_language.toLowerCase() as LanguageCode,
+    )
     if (Boolean(user)) {
       await ctx.replyWithHTML(ml`
-      | Welcome ${getName(user)} to LingoParrot from LanguageLearners.club`)
+      | Welcome ${getName(user)} to LingoParrot from LanguageLearners.club
+      | Your "known" (source) language is ${sourceLanguageName}.
+      | Please change it with /set_source_language command.
+      |
+      | Your "to learn" (target) language is ${targetLanguageName}
+      | Please change it with /set_target_language command.`)
     }
   })
 }
