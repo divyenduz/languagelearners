@@ -1,7 +1,9 @@
 // TODO: Make this be in sync with "TargetLanguage" from Prisma Client
 export type LanguageCode = LanguageInfo['id']
 
+// https://docs.aws.amazon.com/translate/latest/dg/what-is.html#language-pairs
 // https://docs.aws.amazon.com/polly/latest/dg/voicelist.html
+// http://www.lingoes.net/en/translator/langcode.htm
 type LanguageInfo =
   | LanguageInfoEnglish
   | LanguageInfoGerman
@@ -14,6 +16,7 @@ type LanguageInfo =
   // | LanguageInfoKorean
   | LanguageInfoRussian
   | LanguageInfoSwedish
+  | LanguageInfoPersian
 
 interface LanguageInfoEnglish {
   id: 'en'
@@ -88,6 +91,13 @@ interface LanguageInfoSwedish {
   voice: 'Astrid'
 }
 
+interface LanguageInfoPersian {
+  id: 'fa'
+  name: 'Persian (Farsi)'
+  code: 'fa-IR'
+  voice: ''
+}
+
 type ILanguageMap = {
   [key in LanguageCode]: LanguageInfo
 } & {
@@ -102,6 +112,7 @@ type ILanguageMap = {
   // kr: LanguageInfoKorean
   ru: LanguageInfoRussian
   se: LanguageInfoSwedish
+  fa: LanguageInfoPersian
 }
 
 export class LanguageMap {
@@ -171,6 +182,12 @@ export class LanguageMap {
       name: 'Swedish',
       code: 'sv-SE',
       voice: 'Astrid',
+    },
+    fa: {
+      id: 'fa',
+      name: 'Persian (Farsi)',
+      code: 'fa-IR',
+      voice: '',
     },
   }
 

@@ -1,3 +1,5 @@
+import ml from 'multilines'
+
 import { comprehend, speech } from '../api'
 import { PRODUCTION } from '../globals'
 import Telegraf from 'telegraf'
@@ -61,7 +63,10 @@ export const addSpeakCommand = (
       } catch (e) {
         console.log(e.toString())
         await ctx.reply(
-          '🐞 Failed to create voice for the text. Our team has been notified.',
+          ml`
+          | 🐞 Failed to create voice for the text. Our team has been notified.
+          | 
+          | ${e.toString()}`,
           {
             reply_to_message_id: message.message_id,
           },
