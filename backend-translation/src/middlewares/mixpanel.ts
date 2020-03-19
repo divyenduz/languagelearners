@@ -19,16 +19,20 @@ export const mixpanelMiddleware: Middleware<ContextMessageUpdateDecorated> = asy
   ctx.mixpanel = mixpanel
 
   const from =
-    (ctx.message && ctx.message.from) ||
-    (ctx.inlineQuery && ctx.inlineQuery.from && ctx.inlineQuery.from) ||
-    (ctx.editedMessage && ctx.editedMessage.from)
+    ctx.message?.from || ctx.inlineQuery?.from || ctx.editedMessage?.from
 
   const query =
-    (ctx.message && ctx.message.text.trim()) ||
-    (ctx.inlineQuery && ctx.inlineQuery.query.trim()) ||
-    (ctx.editedMessage && ctx.editedMessage.text.trim())
+    ctx.message?.text?.trim() ||
+    ctx.inlineQuery?.query?.trim() ||
+    ctx.editedMessage?.text?.trim()
 
-  console.log(`${ctx.updateType} - ${query} from user ${from && from.username}`)
+  const chat = ctx.chat?.type
+  const group = ctx.chat?.title
+
+  console.log(
+    `${ctx.updateType} - ${query} from user ${from &&
+      from.username} in ${chat} chat ${chat !== 'private' ? `(${group})` : ``}`,
+  )
 
   if (ctx.mixpanel && from) {
     const mixpanel = ctx.mixpanel
