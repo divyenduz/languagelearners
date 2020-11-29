@@ -55,21 +55,48 @@ model User {
 }
 
 enum SourceLanguage {
-  EN DE ES NL FR HI IT JP KR RU SE FA
+  EN
+  DE
+  ES
+  NL
+  FR
+  HI
+  IT
+  JP
+  KR
+  RU
+  SE
+  FA
 }
 
 enum TargetLanguage {
-  EN DE ES NL FR HI IT JP KR RU SE FA
+  EN
+  DE
+  ES
+  NL
+  FR
+  HI
+  IT
+  JP
+  KR
+  RU
+  SE
+  FA
 }
 
 // PAST: Was a user in past but does not exist now
-// GUEST: Free as a friend, we do this for feedback 
-// INTRO_5: People who were onboarded on introductory price of $5/month 
-// PLAN_9: The original $9 plan 
-// YEARLY_100: $100/year as discount 
-// LIFETIME_199: $199 and LLC is yours for life 
+// GUEST: Free as a friend, we do this for feedback
+// INTRO_5: People who were onboarded on introductory price of $5/month
+// PLAN_9: The original $9 plan
+// YEARLY_100: $100/year as discount
+// LIFETIME_199: $199 and LLC is yours for life
 enum Plan {
-  PAST GUEST INTRO_5 PLAN_9 YEARLY_100 LIFETIME_199
+  PAST
+  GUEST
+  INTRO_5
+  PLAN_9
+  YEARLY_100
+  LIFETIME_199
 }
 
 enum TelemetryType {
@@ -77,5 +104,6 @@ enum TelemetryType {
 }
 
 enum UserType {
-  ADMIN USER
+  ADMIN
+  USER
 }

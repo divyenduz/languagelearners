@@ -2,6 +2,18 @@
 
 Built with [telegraf](http://telegraf.js.org/#/), [Telegram Bot API](https://core.telegram.org/bots/api), AWS and ❤️
 
+```
+docker build . -t lingoparrot
+
+docker tag lingoparrot:latest 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com/lingoparrot:latest
+
+aws ecr get-login-password --region ap-southeast-1 -- profile admin | docker login --username AWS --password-stdin 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com
+
+docker run -p 3000:3000 --env-file ./.env.local.docker lingoparrot:latest
+
+docker push 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com/lingoparrot:latest
+```
+
 ---
 
 ## Development/Production Workflow
@@ -23,9 +35,9 @@ Run the following commands to start receiving `@<bot-name>` requests on your loc
 
 1.  `yarn dev`
 
-* runs the project locally (via `sls offline start`, supports hot realoading).
-* creates a tunnel (languagelearnersclub.localtunnel.me) from local to the internet.
-* points the bot to local development version (uses `.env` and localtunnel url).
+- runs the project locally (via `sls offline start`, supports hot realoading).
+- creates a tunnel (languagelearnersclub.localtunnel.me) from local to the internet.
+- points the bot to local development version (uses `.env` and localtunnel url).
 
 2.  `yarn run watch` - to watch and compile TS to JS.
 
@@ -47,11 +59,11 @@ Generally, I have two versions of the bot i.e. development and production. I poi
 
 ## Resources
 
-* https://telegraf.js.org/#/
-* https://core.telegram.org/bots/api#inlinequeryresult
-* https://aws.amazon.com/translate/pricing/
-* https://docs.aws.amazon.com/translate/latest/dg/API_TranslateText.html
-* https://docs.aws.amazon.com/translate/latest/dg/pairs.html
-* https://ibb.co/rx3tsGD (Pricing for a conversational app)
+- https://telegraf.js.org/#/
+- https://core.telegram.org/bots/api#inlinequeryresult
+- https://aws.amazon.com/translate/pricing/
+- https://docs.aws.amazon.com/translate/latest/dg/API_TranslateText.html
+- https://docs.aws.amazon.com/translate/latest/dg/pairs.html
+- https://ibb.co/rx3tsGD (Pricing for a conversational app)
 
 ---

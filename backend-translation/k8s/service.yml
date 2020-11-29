@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: lingoparrot
+  labels:
+    app: lingoparrot
+    env: dev
+spec:
+  type: LoadBalancer
+  selector:
+    app: lingoparrot
+    env: dev
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000

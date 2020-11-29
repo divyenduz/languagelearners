@@ -41,3 +41,7 @@ layers:
   binaries:
     path: layers
     description: 'ffmpeg, ffprobe'
+
+custom:
+  serverless-offline:
+    host: '0.0.0.0'

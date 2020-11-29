@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lingoparrot
+  labels:
+    app: lingoparrot
+    env: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: lingoparrot
+      env: dev
+  template:
+    metadata:
+      labels:
+        app: lingoparrot
+        env: dev
+    spec:
+      containers:
+        - name: lingoparrot
+          image: 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com/lingoparrot:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            - name: DEBUG
+              value: 'false'
+            - name: BACKEND_URL
+              value: 'https://mkljc4ztck.execute-api.us-east-1.amazonaws.com/production/'
+            - name: BOT_TOKEN
+              value: '779411297:AAEZj4dOVFe59BaDnYvTZ9qOpyhxyXMYWbE'
+            - name: ACCESS_KEY_ID
+              value: 'AKIAUKXFH2AGLL2XC5PI'
+            - name: SECRET_KEY_ID
+              value: 'ovxdEkSw2K0CYB5CG2jrqOr+3KCsLDtANdH2IeDV'
+            - name: MIXPANEL_TOKEN
+              value: '32f3e18cdc3f9c03d89bf9e33079d75b'
+            - name: SENDGRID_KEY
+              value: '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'
+            - name: DB_URL
+              value: 'mysql://zoid:notfromvariable@mainbase.cycsuqmzbxlo.ap-southeast-1.rds.amazonaws.com:3306/languagelearners@prod'
