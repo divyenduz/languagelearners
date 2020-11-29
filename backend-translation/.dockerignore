@@ -1,0 +1,10 @@
+node_modules/
+.serverless/
+
+.env
+.env.production
+
+dist/
+
+.DS_Store
+coverage/

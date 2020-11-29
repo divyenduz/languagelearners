@@ -44,6 +44,7 @@
     "offline": "sls offline --watch",
     "dev": "yarn set-webhook languagelearnersclub.localtunnel.me && yarn offline",
     "start": "yarn offline",
+    "server": "sls offline",
     "test": "jest",
     "tunnel": "lt --port 3000 --subdomain languagelearnersclub",
     "build": "tsc",
