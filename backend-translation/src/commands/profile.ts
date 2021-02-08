@@ -13,7 +13,7 @@ export const addProfileCommands = (
 ) => {
   bot.command('set_email', async ctx => {
     const query = ctx.message.text.replace('/set_email', '').trim()
-    const existingUser = await client.users.findOne({
+    const existingUser = await client.user.findUnique({
       where: {
         telegram_id: ctx.from.id.toString(),
       },
@@ -21,7 +21,7 @@ export const addProfileCommands = (
     if (!Boolean(existingUser)) {
       await ctx.reply(`/set_email called for a user that does not exist`)
     }
-    await client.users.update({
+    await client.user.update({
       where: {
         id: existingUser.id,
       },
@@ -39,7 +39,7 @@ export const addProfileCommands = (
       commandEntity?.length,
     )
 
-    const user = await client.users.findOne({
+    const user = await client.user.findUnique({
       where: {
         telegram_id: ctx.from.id.toString(),
       },
@@ -100,7 +100,7 @@ export const addProfileCommands = (
     }
 
     console.log(ctx.from.id.toString())
-    const user = await client.users.update({
+    const user = await client.user.update({
       where: {
         telegram_id: ctx.from.id.toString(),
       },

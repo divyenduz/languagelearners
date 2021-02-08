@@ -12,7 +12,7 @@ export const addAddUserCommand = (
   bot.command('adduser', async ctx => {
     if (await isAdmin(ctx.from.id)) {
       const query = ctx.message.text.replace('/adduser', '').trim()
-      const existingUser = await client.users.findOne({
+      const existingUser = await client.user.findUnique({
         where: {
           email: query,
         },
@@ -23,7 +23,7 @@ export const addAddUserCommand = (
             `User with email ${existingUser.email}, already exists with plan ${existingUser.plan}`,
           )
         } else {
-          const user = await client.users.update({
+          const user = await client.user.update({
             where: {
               email: query,
             },
@@ -49,7 +49,7 @@ export const addAddUserCommand = (
           )
         }
       } else {
-        const user = await client.users.create({
+        const user = await client.user.create({
           data: {
             email: query,
             plan: 'GUEST',

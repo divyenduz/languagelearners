@@ -40,4 +40,4 @@ spec:
             - name: SENDGRID_KEY
               value: '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'
             - name: DB_URL
-              value: 'mysql://zoid:notfromvariable@mainbase.cycsuqmzbxlo.ap-southeast-1.rds.amazonaws.com:3306/languagelearners@prod'
+              value: 'postgresql://zoid:ZebraEsquePassword1!@rds-mainbase-postgres.cycsuqmzbxlo.ap-southeast-1.rds.amazonaws.com/languagelearners@prod?schema=public'

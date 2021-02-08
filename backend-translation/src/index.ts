@@ -63,7 +63,7 @@ bot.on('inline_query', async ctx => {
   const query = ctx.inlineQuery.query.trim()
 
   try {
-    const user = await client.users.findOne({
+    const user = await client.user.findUnique({
       where: {
         telegram_id: ctx.from.id.toString(),
       },
@@ -132,7 +132,7 @@ bot.on(['message', 'edited_message'], async ctx => {
   const query = message.text.trim() || message.text.trim()
 
   try {
-    const user = await client.users.findOne({
+    const user = await client.user.findUnique({
       where: {
         telegram_id: ctx.from.id.toString(),
       },

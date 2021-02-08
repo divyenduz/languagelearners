@@ -6,7 +6,7 @@ metadata:
     app: lingoparrot
     env: dev
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: lingoparrot
     env: dev
