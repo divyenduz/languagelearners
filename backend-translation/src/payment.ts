@@ -9,19 +9,19 @@ console.log(`Environment ${process.env.NODE_ENV}`)
 const production = process.env.NODE_ENV === 'production' ? true : false
 
 const handleSubscriptionChargedEvent = async (body: Razorpay.Event) => {
-  const existingUser = await client.users.findOne({
+  const existingUser = await client.user.findUnique({
     where: {
       email: body.payload.payment.entity.email,
     },
   })
 
   if (existingUser) {
-    const payment = await client.payments.create({
+    const payment = await client.payment.create({
       data: {
         amount: body.payload.payment.entity.amount,
         provider_subscription_id: body.payload.subscription.entity.id,
         provider_payment_id: body.payload.payment.entity.id,
-        user: {
+        User: {
           connect: {
             id: existingUser.id,
           },
@@ -33,7 +33,7 @@ const handleSubscriptionChargedEvent = async (body: Razorpay.Event) => {
       body: JSON.stringify(payment),
     }
   } else {
-    const user = await client.users.create({
+    const user = await client.user.create({
       data: {
         plan: 'INTRO_5', // TODO: Unhardcode this
         email: body.payload.payment.entity.email,
@@ -88,7 +88,7 @@ module.exports.handler = async (event, ctx) => {
   }
   const body: Razorpay.Event = JSON.parse(event.body)
 
-  await client.telemetries.create({
+  await client.telemetry.create({
     data: {
       type: 'PROVIDER_PAYMENT_EVENT',
       telemetry_key: body.payload.payment.entity.id,

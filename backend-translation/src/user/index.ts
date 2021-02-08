@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client'
 const client = new PrismaClient()
 
 export const isAdmin = async userId => {
-  const user = await client.users.findOne({
+  const user = await client.user.findUnique({
     where: {
       telegram_id: userId.toString(),
     },
@@ -18,7 +18,7 @@ export const isAdmin = async userId => {
 }
 
 export const isKnownUser = async userId => {
-  const user = await client.users.findOne({
+  const user = await client.user.findUnique({
     where: {
       telegram_id: userId.toString(),
     },

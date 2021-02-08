@@ -19,7 +19,7 @@ export const addStartCommand = (
     // const text = ctx.message.text
     // const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
 
-    const existingUser = await client.users.findOne({
+    const existingUser = await client.user.findUnique({
       where: {
         // id,
         telegram_id: ctx.from.id.toString(),
@@ -33,7 +33,7 @@ export const addStartCommand = (
     let user: User
     if (!existingUser) {
       // await ctx.reply(`User with id ${id} does not exist`)
-      user = await client.users.create({
+      user = await client.user.create({
         data: {
           first_name: ctx.from.first_name,
           last_name: ctx.from.last_name,
@@ -45,7 +45,7 @@ export const addStartCommand = (
         },
       })
     } else {
-      user = await client.users.update({
+      user = await client.user.update({
         where: {
           // id,
           telegram_id: ctx.from.id.toString(),

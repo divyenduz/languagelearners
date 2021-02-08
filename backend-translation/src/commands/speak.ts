@@ -27,7 +27,7 @@ export const addSpeakCommand = (
         .replace('/speak', '')
         .trim()
       try {
-        const user = await client.users.findOne({
+        const user = await client.user.findUnique({
           where: {
             telegram_id: ctx.from.id.toString(),
           },

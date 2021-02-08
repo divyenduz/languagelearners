@@ -9,7 +9,7 @@ export const addRemoveUserCommand = (bot: Telegraf<ContextMessageUpdate>) => {
   bot.command('removeuser', async ctx => {
     if (await isAdmin(ctx.from.id)) {
       const query = ctx.message.text.replace('/removeuser', '').trim()
-      const existingUser = await client.users.findOne({
+      const existingUser = await client.user.findUnique({
         where: {
           email: query,
         },
@@ -19,7 +19,7 @@ export const addRemoveUserCommand = (bot: Telegraf<ContextMessageUpdate>) => {
       } else if (existingUser.plan === 'PAST') {
         await ctx.reply(`User with email id ${query}, is already in PAST plan`)
       } else {
-        const user = await client.users.update({
+        const user = await client.user.update({
           where: {
             id: existingUser.id,
           },

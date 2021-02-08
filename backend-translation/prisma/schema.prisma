@@ -1,11 +1,10 @@
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DB_URL")
 }
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-1.0.x"]
+  provider = "prisma-client-js"
 }
 
 model Payment {
@@ -15,7 +14,10 @@ model Payment {
   amount                   Int
   provider_subscription_id String
   provider_payment_id      String            @unique
-  subscription             SubscriptionPlan?
+  subscription             SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId       String?
+  User                     User?             @relation(fields: [userId], references: [id])
+  userId                   String?
 }
 
 model SubscriptionPlan {
@@ -23,7 +25,7 @@ model SubscriptionPlan {
   provider_plan_id         String
   provider_subscription_id String
   payments                 Payment[]
-  users                    User[]    @relation(references: [subscription])
+  users                    User[]
 }
 
 model Telemetry {
@@ -50,7 +52,8 @@ model User {
   telegram_chat_id     String?           @unique
   telegram_id          String?           @unique
   type                 UserType          @default(value: USER)
-  subscription         SubscriptionPlan?
+  subscription         SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId   String?
   payment              Payment[]
 }
 
