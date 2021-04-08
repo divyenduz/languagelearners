@@ -65,5 +65,6 @@ Generally, I have two versions of the bot i.e. development and production. I poi
 - https://docs.aws.amazon.com/translate/latest/dg/API_TranslateText.html
 - https://docs.aws.amazon.com/translate/latest/dg/pairs.html
 - https://ibb.co/rx3tsGD (Pricing for a conversational app)
+- https://pair-code.github.io/lit/
 
 ---
