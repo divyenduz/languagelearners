@@ -7,7 +7,7 @@ import { PRODUCTION } from '../src/globals'
 const client = new PrismaClient()
 
 async function run() {
-  const user = await client.users.create({
+  const user = await client.user.create({
     data: {
       email: 'divyendu.z@gmail.com',
       type: 'ADMIN',

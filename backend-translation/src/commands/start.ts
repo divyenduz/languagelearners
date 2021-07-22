@@ -4,6 +4,7 @@ import { PrismaClient, User } from '@prisma/client'
 
 import ml from 'multilines'
 import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
+import { match } from 'ts-pattern'
 
 const client = new PrismaClient()
 const languageMap = new LanguageMap()
@@ -16,15 +17,28 @@ export const addStartCommand = (
   bot: Telegraf<ContextMessageUpdateDecorated>,
 ) => {
   bot.start(async ctx => {
-    // const text = ctx.message.text
-    // const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
+    const text = ctx.message.text
+    const id = text.replace('/start', '').trim() // Externally created Prisma ID for payment
+
+    // TODO: fix the error when two users are created
+    const findUniqueWhereArgs = match(Boolean(id))
+      .with(true, () => {
+        return {
+          id,
+        }
+      })
+      .with(false, () => {
+        return { telegram_id: ctx.from.id.toString() }
+      })
+      .exhaustive()
+
+    console.log({ findUniqueWhereArgs })
 
     const existingUser = await client.user.findUnique({
-      where: {
-        // id,
-        telegram_id: ctx.from.id.toString(),
-      },
+      where: findUniqueWhereArgs,
     })
+
+    console.log({ existingUser })
 
     if (ctx.environment.debug) {
       console.log({ message: ctx.message })
@@ -46,10 +60,7 @@ export const addStartCommand = (
       })
     } else {
       user = await client.user.update({
-        where: {
-          // id,
-          telegram_id: ctx.from.id.toString(),
-        },
+        where: findUniqueWhereArgs,
         data: {
           telegram_id: ctx.message.from.id.toString(),
           telegram_chat_id: ctx.message.chat.id.toString(),
