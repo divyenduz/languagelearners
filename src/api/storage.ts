@@ -3,6 +3,7 @@ import AWS from 'aws-sdk'
 const storageAPI = new AWS.S3({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_KEY_ID,
+  region: 'ap-southeast-1',
   // params: {
   //   Bucket: `lingoparrot/${process.env.NODE_ENV}`
   // }

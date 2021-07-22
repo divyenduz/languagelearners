@@ -6,6 +6,7 @@ const comprehendAPI = new AWS.Comprehend({
   secretAccessKey: process.env.SECRET_KEY_ID,
   apiVersion: '2017-11-27',
   signatureVersion: 'v4',
+  region: 'ap-southeast-1',
 })
 
 export const comprehend = (languageCode: LanguageCode) => {
