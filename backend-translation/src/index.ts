@@ -42,7 +42,7 @@ export type ContextMessageUpdateDecorated = ContextMessageUpdate & {
   mixpanel?: Mixpanel
 }
 
-const bot: Telegraf<ContextMessageUpdateDecorated> = new Telegraf(
+export const bot: Telegraf<ContextMessageUpdateDecorated> = new Telegraf(
   process.env.BOT_TOKEN,
 )
 
@@ -162,18 +162,3 @@ bot.on(['message', 'edited_message'], async ctx => {
     })
   }
 })
-
-module.exports.handler = async (event: any, ctx: any, callback: any) => {
-  if (event.httpMethod === 'GET') {
-    // For health checks
-    return {
-      statusCode: 200,
-      body: 'OK',
-    }
-  }
-  await bot.handleUpdate(JSON.parse(event.body))
-  return {
-    statusCode: 200,
-    body: 'OK',
-  }
-}

@@ -1,12 +1,11 @@
-FROM node:12.18.4
+FROM node:16.5.0
 WORKDIR /app
-ADD . .
+ADD package.json ./package.json
+ADD prisma/schema.prisma ./prisma/schema.prisma
+RUN yarn && yarn prisma generate
 ADD layers/bin/ffmpeg /usr/bin/ffmpeg
-
-# Required because of a bug in older verson of Prisma
-ENV DB_URL=''
-
-RUN yarn && yarn build && yarn prisma generate
+ADD . .
+RUN yarn build
 USER node
 EXPOSE 3000
-CMD [ "yarn", "server", "--noTimeout" ]
+CMD [ "yarn", "start" ]

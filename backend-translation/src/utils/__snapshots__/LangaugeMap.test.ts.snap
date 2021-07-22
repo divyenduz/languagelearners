@@ -15,3 +15,5 @@ exports[`language map should map languages to their info 3`] = `"Ivy"`;
 exports[`language map should map languages to their info 4`] = `"de-DE"`;
 
 exports[`language map should map languages to their info 5`] = `"Vicki"`;
+
+exports[`language map should map languages to their info 6`] = `"Vicki"`;
