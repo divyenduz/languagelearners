@@ -8,10 +8,10 @@ import uuidv4 from 'uuid/v4'
 import { LanguageMap, LanguageCode } from '../utils/LanguageMap'
 
 const speechAPI = new AWS.Polly({
-  region: 'us-east-1',
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_KEY_ID,
   signatureVersion: 'v4',
+  region: 'ap-southeast-1',
 })
 
 // TODO: Enable strict true
