@@ -57,7 +57,7 @@ Generally, I have two versions of the bot i.e. development and production. I poi
 
 ---
 
-## Resources and links
+## Resources
 
 - https://telegraf.js.org/#/
 - https://core.telegram.org/bots/api#inlinequeryresult
