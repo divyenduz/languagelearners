@@ -131,7 +131,6 @@ jobs:
       - name: Verify Deployment
         if: ${{ steps.repo-state.outputs.DID_CHANGE == 'true' || github.event.inputs.DO_RELEASE == 'true' }}
         run: kubectl rollout status deployment/lingoparrot
-
       # - name: Migrate Database
       #   if: ${{ steps.repo-state.outputs.DID_CHANGE == 'true' || github.event.inputs.DO_RELEASE == 'true' }}
       #   run: yarn prisma migrate deploy
