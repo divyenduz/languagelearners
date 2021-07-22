@@ -15,7 +15,7 @@
     "mixpanel": "0.11.0",
     "multilines": "1.0.3",
     "next": "^11.0.1",
-    "node-fetch": "2.6.0",
+    "node-fetch": "2.6.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "request": "2.88.0",
