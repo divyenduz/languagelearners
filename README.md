@@ -7,14 +7,16 @@ Built with [telegraf](http://telegraf.js.org/#/), [Telegram Bot API](https://cor
 
 ```
 docker build . -t lingoparrot
-
-docker tag lingoparrot:latest 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com/lingoparrot:latest
-
-aws ecr get-login-password --region ap-southeast-1 -- profile admin | docker login --username AWS --password-stdin 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com
-
+docker tag lingoparrot:latest <docker remote>
 docker run -p 3000:3000 --env-file ./.env.local.docker lingoparrot:latest
+docker push <docker remote>
+```
 
-docker push 297907245068.dkr.ecr.ap-southeast-1.amazonaws.com/lingoparrot:latest
+## Setup for Content Website
+
+```
+cd carrd-language-learners-20220623
+npx serve
 ```
 
 ---
