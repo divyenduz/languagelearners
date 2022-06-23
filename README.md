@@ -1,6 +1,8 @@
 
 It was great to work and make this project, Tuti is now deprecated https://divyendusingh.com/farewell-tuti
 
+Note: this was a private project, this is made public. Some CI/CD scripts might be outdated. This is only for reference and might not be deployable as is.
+
 ## Setup
 
 Built with [telegraf](http://telegraf.js.org/#/), [Telegram Bot API](https://core.telegram.org/bots/api), AWS and ❤️
